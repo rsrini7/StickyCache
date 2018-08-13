@@ -1,0 +1,16 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         name="diskconfig"  updateCheck="true" monitoring="autodetect" dynamicConfig="true">
+
+  <diskStore path="cachedata" />
+
+  <cache name="stickyCache"
+		maxEntriesLocalHeap="10000"
+		maxEntriesLocalDisk="1000"
+		eternal="true"
+		diskSpoolBufferSizeMB="20">
+		<persistence strategy="localRestartable" />
+		<searchable />
+	</cache>
+
+</ehcache>

@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Sticky Board</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style type="text/css">
+    	.dividing-line{ border-bottom-width: 1px; border-bottom-style: solid; margin: 5px}
+    	.menu-breaking-line{ font-size:15pt;font-weight:bold }
+    	.fixed-left{ float: left; width: 250px; border-right-width:1px; border-right-style:solid; }
+    	.fixed-right{ margin-left: 250px }
+    	.popup-header{ border-width: 1px; border-style: solid; border-color: black; background-color: black; color: white}
+    	.divModalDialog  {
+		        position:fixed;
+			    top:0;
+			    left:0;
+			    width:100%;
+			    height:100%;
+			    /*! important !
+			    display:none;*/
+			    /* last attribute set darkness on scale: 0...1.0*/ 
+			    background-color:rgba(0,0,0,0.2);
+			    visibility:hidden;
+			    text-align:center;
+			    z-index:101;
+			    border-width: 1px; border-style: solid;
+			    display:block;
+		    }
+		  .divModalDialog:target{
+		  		visibility:visible;
+		  }
+		  .popup {
+		  		width: 500px;
+		  		height: 250px;
+		  		background-color: white;
+		  		top: 20%;
+		  		left: 20%;
+		  		position: relative;
+		  }
+		  .iconstyle {
+		  	height: 14px
+		  }
+/* 		  .popup:target{ */
+/* 		  		visibility: visible; */
+/* 		  } */
+    </style>
+    <script type="text/javascript">
+    function editHandler(obj){
+    	document.getElementById('popupSubmit').value='Edit';
+    	document.getElementById('popupHeader').innerHTML='Edit Sticky Note';
+    	idSplitArr = obj.id.split("a");
+    	document.getElementById('popupTitle').value=document.getElementById('title'+idSplitArr[1]).textContent;
+    	document.getElementById('popupSticky').value=document.getElementById('content'+idSplitArr[1]).textContent;
+    }	
+    </script>
+</head>
+<body>
+	<p style="text-align: center">Sticky Board - Using Ehcache</p> 	
+	<div class="dividing-line"></div>
+
+	<!-- menu bar -->
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="#overlay" id="addsticky" 
+		style="display: inline; text-decoration: none"
+		onclick="document.getElementById('popupSubmit').value='Add';document.getElementById('popupHeader').innerHTML='Add a Sticky Note';document.getElementById('popupTitle').removeAttribute('readonly')">
+	<input type="button" value="Add Sticky Note"/> 
+	</a>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span class="menu-breaking-line">|</span>
+	<span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<form action="#" th:action="@{/sticky/search}" th:object="${stickyFilter}"
+			method="post" style="display: inline">
+			<select th:field="*{searchType}">
+				<option th:each="type : ${allSearchTypes}" th:value="${type}"
+					th:text="#{${'stickyboard.search.type.'+type}}">SearchType</option>
+			</select>&nbsp;&nbsp;&nbsp; 
+			<input type="text" name="searchValue"
+				th:field="*{searchValue}" />&nbsp;&nbsp;&nbsp; 
+			<input type="submit" value="Search" />
+		</form>
+	</span>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span class="menu-breaking-line">|</span>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="download/" th:href="@{download/}">
+		<input type="button" value="Download"/>
+	</a> 
+
+	<div class="dividing-line"></div>
+	<br />
+
+	<!-- sticky panel -->
+	<th:block th:each="stickyRecord: ${stickyRecords}">
+		<table
+			style="border-width: 1px; border-style: solid; border-spacing: 0px; display: inline; float: left; margin: 10px">
+			<tr style="background-color: lightgrey; border-style: solid;">
+				<th >
+				<label th:id="${'title'+stickyRecordStat.index}" th:text="${stickyRecord.getObjectKey()}"></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="#overlay" th:id="${'a'+stickyRecordStat.index}"
+				    onclick="editHandler(this)">
+				   <img src="../static/images/editicon.png" th:src="@{/images/editicon.png}" title="Edit Sticky" class="iconstyle"></img></a>&nbsp;&nbsp;
+				<a href="delete/"  th:href="@{${'/sticky/delete/'+stickyRecord.getObjectKey()}}" >
+				   <img src="../static/images/deleteicon.png" th:src="@{/images/deleteicon.png}" title="Delete Sticky" class="iconstyle"></img>
+				</a>
+				</th>
+			</tr>
+			<tr>
+				<td th:id="${'content'+stickyRecordStat.index}" style="white-space:pre" th:text="${stickyRecord.getObjectValue()}"></td>
+			</tr>
+		</table>
+    </th:block>
+
+	<!-- pop up panel for adding sticky -->
+	<div class="divModalDialog" id="overlay">
+		<div class="popup">
+			<p class="popup-header" id="popupHeader">Add/Edit a Sticky Note</p>
+			<form action="#" th:action="@{/sticky/save}" th:object="${stickyNote}" method="post">
+		        <p style="font-size:13px"> Title </p> 
+		        <input id="popupTitle" type="text" name="key" size="60" placeholder="Title(purpose and need of the Sticky Note)" readonly="true" th:field="*{title}"/>
+		        <br/>
+		        <p style="font-size:13px"> Note </p> 
+		        <textarea id="popupSticky" rows="4" cols="62" name="value" wrap="hard" placeholder="Description(Todos or short notes)" th:field="*{content}"></textarea>
+		        <br/> <br/>
+		        <a href=""><input type="submit" value="Submit" id="popupSubmit"/></a>
+		        <a href="#"><input type="button" value="Cancel" /></a>
+    		</form>
+		</div>
+	</div>
+</body>
+</html>
