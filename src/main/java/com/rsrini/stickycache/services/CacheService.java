@@ -36,7 +36,10 @@ public class CacheService {
 	private Cache stickyCache;
 	
 	private CacheService(){
-		CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/disk/ehcache.xml"));
+		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/disk/ehcache.xml"));
+		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/go/ehcache.xml"));
+		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/arc/ehcache.xml"));
+		CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/max/ehcache.xml"));
 //		cm.addCache(CACHE_NAME);
 		stickyCache = cm.getCache(CACHE_NAME);
 	}

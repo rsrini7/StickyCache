@@ -9,8 +9,8 @@
 		maxEntriesLocalDisk="1000"
 		eternal="true"
 		diskSpoolBufferSizeMB="20">
-		<persistence strategy="localRestartable" />
 		<searchable />
+		<persistence strategy="localRestartable" />
 	</cache>
 
 </ehcache>

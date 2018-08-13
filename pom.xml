@@ -21,6 +21,10 @@
 	<properties>
 		<bigmemory.version>4.3.5.0.23</bigmemory.version>
 		<ehcache-ee.version>2.10.5.0.59</ehcache-ee.version>
+		<slf4j.version>1.7.25</slf4j.version>
+    	<commons-lang.version>2.6</commons-lang.version>
+    	<guava.version>14.0.1</guava.version>
+    	<toolkit.version>4.3.5.0.34</toolkit.version>
 		<terracotta-nexus-staging-url>http://nexus.terracotta.eur.ad.sag/service/local/staging/deploy/maven2</terracotta-nexus-staging-url>
 		<terracotta-snapshots-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-snapshots</terracotta-snapshots-url>
 		<skipDeploy>false</skipDeploy>
@@ -37,12 +41,28 @@
 		</dependency>
 
 		<dependency>
+      		<groupId>org.terracotta</groupId>
+      		<artifactId>terracotta-toolkit-runtime-ee</artifactId>
+      		<version>${toolkit.version}</version>
+    	</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
 	</dependencies>
 
+
+  	<profiles>
+    	<profile>
+      		<id>main</id>
+      		<properties>
+        		<mainClass>com.rsrini.stickycache.StickyCacheApplication</mainClass>
+      		</properties>
+    	</profile>
+    </profiles>
+    
 	<build>
 		<plugins>
 			<plugin>
@@ -66,7 +86,7 @@
 				<arguments>
 					<argument>-Xmx200m</argument>
 					<argument>-XX:MaxDirectMemorySize=1800M</argument>
-					<argument>-Dcom.tc.productkey.path=${basedir}/../terracotta-license.key</argument>
+					<argument>-Dcom.tc.productkey.path=${basedir}/terracotta-license.key</argument>
 					<argument>-cp</argument>
 					<classpath/>
 					<argument>${mainClass}</argument>

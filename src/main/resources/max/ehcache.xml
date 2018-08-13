@@ -1,0 +1,19 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         name="BigMemoryMaxConfig">
+
+	<terracottaConfig url="localhost:9510" rejoin="false"/>
+	
+	<cache name="stickyCache"
+         maxBytesLocalHeap="128M"
+         maxMemoryOffHeap="1G" 
+         copyOnRead="true" 
+         statistics="true" eternal="true">
+         
+	    <terracotta/> 
+        <searchable />
+    	<persistence strategy="distributed"/> 
+	</cache>
+
+
+</ehcache>

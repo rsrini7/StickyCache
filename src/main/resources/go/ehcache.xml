@@ -1,11 +1,14 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
-         name="config">
+         name="BigMemoryGoConfig">
 
 
-  <cache name="bm"
-         maxBytesLocalHeap="128M"
-         maxMemoryOffHeap="1G" copyOnRead="true" statistics="true" eternal="true">
+  <cache name="stickyCache"
+         maxBytesLocalHeap="1M"
+         maxMemoryOffHeap="1G" copyOnRead="true" 
+         statistics="true" eternal="true">
+         
+        <searchable />
   </cache>
 
 
