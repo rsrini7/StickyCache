@@ -21,6 +21,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Result;
 import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.query.QueryManager;
+import net.sf.ehcache.search.query.QueryManagerBuilder;
 
 @Service(value="cacheService")
 public class CacheService {
@@ -74,13 +76,24 @@ public class CacheService {
 	}
 
 	public Collection<Element> searchSticky(StickyNoteFilter stickyFilter) {
+		
+		QueryManager queryManager = QueryManagerBuilder
+		        .newQueryManagerBuilder() 
+		        .addCache(stickyCache)
+		        .build(); 
+		
 		String searchValue = "*" + stickyFilter.getSearchValue() + "*";
 		Results filteredStickies = null;
 		StickySearchType searchType = stickyFilter.getSearchType();
 		System.out.println("search value -"+searchValue);
+		
 		switch (searchType){
 			case SEARCH_BY_KEY:{
-				filteredStickies = stickyCache.createQuery().addCriteria(Query.KEY.ilike(searchValue)).includeKeys().includeValues().execute();
+				//filteredStickies = stickyCache.createQuery().addCriteria(Query.KEY.ilike(searchValue)).includeKeys().includeValues().execute();
+
+				Query stickyKeyQuery = queryManager.createQuery("select * from stickyCache where key like '%"+stickyFilter.getSearchValue()+"%'").includeKeys().includeValues();
+				filteredStickies = stickyKeyQuery.end().execute();
+
 				break;
 			}
 			case SEARCH_BY_VALUE:{

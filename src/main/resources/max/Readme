@@ -1,0 +1,11 @@
+edit start-tc-server.bat and add after %CLASSPATH% -Dcom.tc.productkey.path=I:/MyWS/javaws/ehcache/StickyCache/terracotta-license.key
+
+start-tc-server.bat -n server1 -f I:/MyWS/javaws/ehcache/StickyCache/src/main/resources/max/tc-config-ha.xml
+
+start-tc-server.bat -n server2 -f I:/MyWS/javaws/ehcache/StickyCache/src/main/resources/max/tc-config-ha.xml
+
+mvn exec:exec -Pmain
+-Dtc.config=path/to/my-tc-config.xml -cp classes myApp.class.Main
+
+netstat -aon | grep 8081
+taskkill /F /PID <pid>

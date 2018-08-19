@@ -8,6 +8,9 @@
 		maxEntriesLocalHeap="10000"
 		maxEntriesLocalDisk="1000"
 		eternal="true"
+		timeToLiveSeconds="0"
+ 		timeToIdleSeconds="14400"
+ 		overflowToDisk="true"
 		diskSpoolBufferSizeMB="20">
 		<searchable />
 		<persistence strategy="localRestartable" />

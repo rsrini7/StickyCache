@@ -2,15 +2,33 @@
          xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
          name="BigMemoryMaxConfig">
 
-	<terracottaConfig url="localhost:9510" rejoin="false"/>
+	<terracottaConfig url="localhost:8510" rejoin="false"/>
+	
+	<managementRESTService bind="0.0.0.0:9888" enabled="true"/> 
 	
 	<cache name="stickyCache"
          maxBytesLocalHeap="128M"
          maxMemoryOffHeap="1G" 
          copyOnRead="true" 
-         statistics="true" eternal="true">
+         statistics="true" 
+         eternal="true"
+         >
          
-	    <terracotta/> 
+        <bootstrapCacheLoaderFactory
+			class="net.sf.ehcache.terracotta.TerracottaBootstrapCacheLoaderFactory"
+			properties="bootstrapAsynchronously=false,
+           directory=key-snapshots,
+           interval=10,
+           immediateShutdown=false,
+           snapshotOnShutDown=true,
+           doKeySnapshot=true,
+           useDedicatedThread=true" />
+           
+	    <terracotta consistency="eventual">
+	    	<!-- nonstop immediateTimeout="true" timeoutMillis="3000">
+                <timeoutBehavior type="exception"/>
+            </nonstop-->
+	    </terracotta> 
         <searchable />
     	<persistence strategy="distributed"/> 
 	</cache>
