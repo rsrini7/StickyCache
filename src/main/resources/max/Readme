@@ -9,3 +9,5 @@ mvn exec:exec -Pmain
 
 netstat -aon | grep 8081
 taskkill /F /PID <pid>
+
+mvn package spring-boot:repackage

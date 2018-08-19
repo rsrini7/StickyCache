@@ -31,6 +31,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<start-class>com.rsrini.stickycache.StickyCacheApplication</start-class>
   	</properties>
 
 	<dependencies>
@@ -63,6 +64,7 @@
     	</profile>
     </profiles>
     
+    
 	<build>
 		<plugins>
 			<plugin>
@@ -92,6 +94,38 @@
 					<argument>${mainClass}</argument>
 				</arguments>
 				</configuration>
+			</plugin>
+			<plugin>
+		        <groupId>org.springframework.boot</groupId>
+		        <artifactId>spring-boot-maven-plugin</artifactId>
+		        <configuration>
+			        <mainClass>com.rsrini.stickycache.StickyCacheApplication</mainClass>
+			    </configuration>
+		        <executions>
+		            <execution>
+		                <goals>
+		                    <goal>repackage</goal>
+		                </goals>
+		            </execution>
+		        </executions>
+		    </plugin>
+		    <plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-dependency-plugin</artifactId>
+			    <executions>
+			        <execution>
+			            <id>copy-dependencies</id>
+			            <phase>prepare-package</phase>
+			            <goals>
+			                <goal>copy-dependencies</goal>
+			            </goals>
+			            <configuration>
+			                <outputDirectory>
+			                    ${project.build.directory}/libs
+			                </outputDirectory>
+			            </configuration>
+			        </execution>
+			    </executions>
 			</plugin>
 		</plugins>
 	</build>
