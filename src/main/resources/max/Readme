@@ -11,3 +11,5 @@ netstat -aon | grep 8081
 taskkill /F /PID <pid>
 
 mvn package spring-boot:repackage
+
+java -XX:MaxDirectMemorySize=1800M -Xmx200m -classpath libs\* -Dcom.tc.productkey.path=I:/MyWS/javaws/ehcache/StickyCache/terracotta-license.key -jar StickyCache-0.0.1-SNAPSHOT.jar
