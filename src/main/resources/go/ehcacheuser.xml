@@ -8,7 +8,10 @@
          maxMemoryOffHeap="128M" copyOnRead="true" 
          statistics="true" eternal="true">
          
-        <searchable />
+        <searchable>
+        	<searchAttribute name="title" expression="value.getTitle()" />
+			<searchAttribute name="content" expression="value.getContent()" />
+        </searchable>
   </cache>
 
 

@@ -10,7 +10,6 @@
 		eternal="true"
 		timeToLiveSeconds="0"
  		timeToIdleSeconds="14400"
- 		overflowToDisk="true"
 		diskSpoolBufferSizeMB="20">
 		<searchable />
 		<persistence strategy="localRestartable" />

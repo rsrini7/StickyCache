@@ -68,7 +68,7 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<span class="menu-breaking-line">|</span>
 	<span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<form action="#" th:action="@{/sticky/search}" th:object="${stickyFilter}"
+		<form action="#" th:action="@{/usersticky/search}" th:object="${stickyFilter}"
 			method="post" style="display: inline">
 			<select th:field="*{searchType}">
 				<option th:each="type : ${allSearchTypes}" th:value="${type}"
@@ -84,8 +84,8 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<a href="download/" th:href="@{download/}">
 		<input type="button" value="Download"/>
-	</a>
-	
+	</a> 
+
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<span class="menu-breaking-line">|</span>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -106,13 +106,13 @@
 				<a href="#overlay" th:id="${'a'+stickyRecordStat.index}"
 				    onclick="editHandler(this)">
 				   <img src="../static/images/editicon.png" th:src="@{/images/editicon.png}" title="Edit Sticky" class="iconstyle"></img></a>&nbsp;&nbsp;
-				<a href="delete/"  th:href="@{${'/sticky/delete/'+stickyRecord.getObjectKey()}}" >
+				<a href="delete/"  th:href="@{${'/usersticky/delete/'+stickyRecord.getObjectKey()}}" >
 				   <img src="../static/images/deleteicon.png" th:src="@{/images/deleteicon.png}" title="Delete Sticky" class="iconstyle"></img>
 				</a>
 				</th>
 			</tr>
 			<tr>
-				<td th:id="${'content'+stickyRecordStat.index}" style="white-space:pre" th:text="${stickyRecord.getObjectValue()}"></td>
+				<td th:id="${'content'+stickyRecordStat.index}" style="white-space:pre" th:text="${stickyRecord.getObjectValue().getContent()}"></td>
 			</tr>
 		</table>
     </th:block>
@@ -121,7 +121,7 @@
 	<div class="divModalDialog" id="overlay">
 		<div class="popup">
 			<p class="popup-header" id="popupHeader">Add/Edit a Sticky Note</p>
-			<form action="#" th:action="@{/sticky/save}" th:object="${stickyNote}" method="post">
+			<form action="#" th:action="@{/usersticky/save}" th:object="${stickyNote}" method="post">
 		        <p style="font-size:13px"> Title </p> 
 		        <input id="popupTitle" type="text" name="key" size="60" placeholder="Title(purpose and need of the Sticky Note)" readonly="true" th:field="*{title}"/>
 		        <br/>

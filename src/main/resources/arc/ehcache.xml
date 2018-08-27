@@ -2,14 +2,18 @@
          xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
          updateCheck="false" monitoring="autodetect"
          dynamicConfig="true" 
-         name="ARCMaxConfig" maxBytesLocalHeap="128M" 
-         maxBytesLocalOffHeap="1G">
+         name="ARCMaxConfig" maxBytesLocalHeap="128M"
+         >
+	<!-- maxBytesLocalOffHeap="1G" -->
 
 	<defaultCache>
 	</defaultCache>
 
 	<cache name="stickyCache">
-		<searchable />
+		<searchable>
+			<searchAttribute name="name" />
+			<searchAttribute name="listSticky" class="com.rsrini.stickycache.util.StickyNoteCollectionExtrator" properties="value.getListSticky()"/>
+		</searchable>
 	</cache>
 
 

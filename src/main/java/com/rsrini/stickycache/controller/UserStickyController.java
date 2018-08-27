@@ -27,27 +27,28 @@ import com.rsrini.stickycache.services.CacheService;
 import net.sf.ehcache.Element;
 
 @Controller
-@RequestMapping("/sticky")
-public class StickyController {
+@RequestMapping("/usersticky")
+public class UserStickyController {
 	
 	private static final int BUFFER_SIZE = 4096;
 	
 	private final CacheService cacheService;
 	
 	@Autowired
-	public StickyController(CacheService cacheService){
+	public UserStickyController(CacheService cacheService){
 		this.cacheService = cacheService;
 	}
 	
 	@RequestMapping("/add")
-	public String addToSticky(@RequestParam(value="key", required=false, defaultValue = "default") String key, 
+	public String addToSticky(@RequestParam(value="user", required=false, defaultValue = "srini") String user,
+							@RequestParam(value="key", required=false, defaultValue = "default") String key, 
 				            @RequestParam(value="value", required=false) String value, Model model){
 		System.out.println("entered into add sticky"+key);
-		Element element = new Element(key, value);
+		Element element = new Element(key,new StickyNote(key, value));
 		Collection<Element> stickyRecords  = cacheService.addToCache(element);
 		model.addAttribute("stickyRecords", stickyRecords);
 		System.out.println("elements in sticky records - "+stickyRecords);
-		return "sticky";
+		return "usersticky";
 	}
 	
 	@RequestMapping("/delete/{key}")
@@ -61,20 +62,20 @@ public class StickyController {
 		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
 		model.addAttribute("stickyNote", new StickyNote());
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
-		return "sticky";
+		return "usersticky";
 	}
 	
 	@RequestMapping("/save")
 	public String saveToSticky(@ModelAttribute StickyNote stickyNote, Model model){
 		System.out.println("sticky element"+model.asMap().get("stickyNote"));
 		System.out.println("sticky element value"+stickyNote);
-		Element stickyElement = new Element(stickyNote.getTitle(), stickyNote.getContent());
+		Element stickyElement = new Element(stickyNote.getTitle(), new StickyNote(stickyNote.getTitle(), stickyNote.getContent()));
 		Collection<Element> stickyRecords  = cacheService.addToCache(stickyElement);
 		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
 		model.addAttribute("stickyRecords", stickyRecords);
 		model.addAttribute("stickyNote", new StickyNote());
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
-		return "sticky";
+		return "usersticky";
 	}
 	
 	@RequestMapping("/search")
@@ -84,7 +85,7 @@ public class StickyController {
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
 		model.addAttribute("stickyNote", new StickyNote());
 		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
-		return "sticky";
+		return "usersticky";
 	}
 	
 	@RequestMapping(value={"/view",""})
@@ -109,7 +110,7 @@ public class StickyController {
 			model.addAttribute("stickyFilter", new StickyNoteFilter());
 		}
 		
-		return "sticky";
+		return "usersticky";
 	}
 	
 	@RequestMapping(value={"/download"})
@@ -124,19 +125,19 @@ public class StickyController {
 			bw = new BufferedWriter(fileWriter);
 			//write buffered output stream..
 			for (Element stickyRecord: stickyRecords){
-				bw.write(StringUtils.repeat("*", 30));
+				bw.write(StringUtils.repeat("*", 100));
 				bw.write(NEWLINE_CHARACTER);
 				
-				bw.write(StringUtils.repeat(">", 10));
+				bw.write(StringUtils.repeat(">", 15));
 				bw.write(stickyRecord.getObjectKey().toString());
 				bw.write(NEWLINE_CHARACTER);
-				bw.write(StringUtils.repeat("*", 30));
+				bw.write(StringUtils.repeat("*", 100));
 				bw.write(NEWLINE_CHARACTER);
 				
 				bw.write(stickyRecord.getObjectValue().toString());
 				bw.write(NEWLINE_CHARACTER);
 				
-				bw.write(StringUtils.repeat("*", 30));
+				bw.write(StringUtils.repeat("*", 100));
 				bw.write(NEWLINE_CHARACTER);
 				bw.write(NEWLINE_CHARACTER);
 			}
@@ -175,13 +176,6 @@ public class StickyController {
 				e.printStackTrace();
 			}
 		}
-		
-//		model.addAttribute("stickyRecords", stickyRecords);
-//		model.addAttribute("stickyFilter", new StickyFilter());
-//		model.addAttribute("stickyNote", new StickyNote());
-//		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
-//		System.out.println("Sticky download completed.");
-//		return "sticky";
 	}
 	
 	@RequestMapping(value={"/searchdownload"})

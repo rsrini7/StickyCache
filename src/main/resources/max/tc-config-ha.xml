@@ -7,9 +7,9 @@
 	    <mirror-group group-name="groupA">
 		      <!-- server number one within the stripe. if we start this server first, it assumes the ACTIVE role  -->
 			<server name="server1" host="localhost">
-				<data>i:/terracotta/server1-data</data>
-				<logs>i:/terracotta/server1-logs</logs>
-				<index>i:/terracotta/server1-index</index>
+				<data>D:/terracotta/server1-data</data>
+				<logs>D:/terracotta/server1-logs</logs>
+				<index>D:/terracotta/server1-index</index>
 				<tsa-port>9510</tsa-port>
 				<jmx-port>9520</jmx-port>
 				<tsa-group-port>9530</tsa-group-port>
@@ -25,9 +25,9 @@
 		<!-- Note: change the host name here to match the environment -->
 
 			<server name="server2" host="localhost">
-				<data>i:/terracotta/server2-data</data>
-				<logs>i:/terracotta/server2-logs</logs>
-				<index>i:/terracotta/server2-index</index>
+				<data>D:/terracotta/server2-data</data>
+				<logs>D:/terracotta/server2-logs</logs>
+				<index>D:/terracotta/server2-index</index>
 				<tsa-port>8510</tsa-port>
 				<jmx-port>8520</jmx-port>
 				<tsa-group-port>8530</tsa-group-port>
@@ -41,7 +41,7 @@
     </mirror-group>
     
 	<update-check>
-     		<enabled>false</enabled>
+     	<enabled>false</enabled>
 	</update-check>
    
 	<garbage-collection>

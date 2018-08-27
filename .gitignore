@@ -26,3 +26,9 @@
 
 #security
 #terracotta-license.key
+
+.vscode/ 
+cachedata/ 
+key-snapshots/ 
+logs-* 
+searchsticky.txt
