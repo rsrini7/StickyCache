@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 public class StickyNote implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
+	
+	private String user;
 
 	private String title;
 	
@@ -19,6 +21,21 @@ public class StickyNote implements Serializable {
 		super();
 		this.title = title;
 		this.content = content;
+	}
+	
+	public StickyNote(String user, String title, String content) {
+		super();
+		this.user = user;
+		this.title = title;
+		this.content = content;
+	}
+	
+	public String getUser() {
+		return user;
+	}
+	
+	public void setUser(String user) {
+		this.user = user;
 	}
 
 	public String getTitle() {
@@ -39,9 +56,7 @@ public class StickyNote implements Serializable {
 
 	@Override
 	public String toString() {
-		return "StickyNote [title=" + title + ", content=" + content + "]";
+		return "StickyNote [user=" + user + ", title=" + title + ", content=" + content + "]";
 	}
-	
-	
 
 }

@@ -95,6 +95,24 @@
 
 	<div class="dividing-line"></div>
 	<br />
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span class="menu-breaking-line">|</span>
+	<span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<form action="#" th:action="@{/usersticky/searchuser}" th:object="${stickyFilter}"
+			method="post" style="display: inline">
+			<input type="text" id="searchUserID" name="userSearchValue"
+				th:field="*{searchValue}" />&nbsp;&nbsp;&nbsp; 
+			<input type="submit" value="Search by User" />
+		</form>
+	</span>
+	
+	<div class="dividing-line"></div>
+	<br />
 
 	<!-- sticky panel -->
 	<th:block th:each="stickyRecord: ${stickyRecords}">
@@ -122,6 +140,8 @@
 		<div class="popup">
 			<p class="popup-header" id="popupHeader">Add/Edit a Sticky Note</p>
 			<form action="#" th:action="@{/usersticky/save}" th:object="${stickyNote}" method="post">
+				<p style="font-size:13px"> User </p>
+				<input id="hiddenuser" type="text" name="username" size="60" th:field="*{user}"/>
 		        <p style="font-size:13px"> Title </p> 
 		        <input id="popupTitle" type="text" name="key" size="60" placeholder="Title(purpose and need of the Sticky Note)" readonly="true" th:field="*{title}"/>
 		        <br/>

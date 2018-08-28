@@ -22,6 +22,7 @@ import org.thymeleaf.util.StringUtils;
 
 import com.rsrini.stickycache.domain.StickyNote;
 import com.rsrini.stickycache.domain.StickyNoteFilter;
+import com.rsrini.stickycache.domain.UserFilter;
 import com.rsrini.stickycache.services.UserCacheService;
 
 import net.sf.ehcache.Element;
@@ -45,7 +46,9 @@ public class UserStickyController {
 				            @RequestParam(value="value", required=false) String value, Model model){
 		System.out.println("entered into add sticky"+key);
 		Element element = new Element(key,new StickyNote(key, value));
+		Element userElement = new Element(user,new StickyNote(key,value));
 		Collection<Element> stickyRecords  = cacheService.addToCache(element);
+		cacheService.addToUserCache(userElement);
 		model.addAttribute("stickyRecords", stickyRecords);
 		System.out.println("elements in sticky records - "+stickyRecords);
 		return "usersticky";
@@ -71,16 +74,31 @@ public class UserStickyController {
 		System.out.println("sticky element value"+stickyNote);
 		Element stickyElement = new Element(stickyNote.getTitle(), new StickyNote(stickyNote.getTitle(), stickyNote.getContent()));
 		Collection<Element> stickyRecords  = cacheService.addToCache(stickyElement);
+		
+		Element userStickyElement = new Element(stickyNote.getUser(), new StickyNote(stickyNote.getUser(), stickyNote.getTitle(), stickyNote.getContent()));
+		cacheService.addToUserCache(userStickyElement);
+		
 		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
 		model.addAttribute("stickyRecords", stickyRecords);
 		model.addAttribute("stickyNote", new StickyNote());
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		
 		return "usersticky";
 	}
 	
 	@RequestMapping("/search")
 	public String searchSticky(@ModelAttribute StickyNoteFilter stickyFilter, Model model){
 		Collection<Element> stickyRecords = cacheService.searchSticky(stickyFilter);
+		model.addAttribute("stickyRecords", stickyRecords);
+		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("stickyNote", new StickyNote());
+		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
+		return "usersticky";
+	}
+	
+	@RequestMapping("/searchuser")
+	public String searchUserSticky(@ModelAttribute UserFilter userFilter, Model model){
+		Collection<Element> stickyRecords = cacheService.searchUserSticky(userFilter);
 		model.addAttribute("stickyRecords", stickyRecords);
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
 		model.addAttribute("stickyNote", new StickyNote());
