@@ -15,13 +15,13 @@
   </cache>
 
 
-	<cache name="searchCache"
+	<!-- cache name="searchCache"
 	         maxBytesLocalHeap="1M"
 	         maxMemoryOffHeap="10M" copyOnRead="true" 
 	         statistics="true" eternal="true">
 	         <searchable>
 	         	<searchAttribute name="searchedData" expression="key" />
 	         </searchable>
-	</cache>
+	</cache-->
 
 </ehcache>

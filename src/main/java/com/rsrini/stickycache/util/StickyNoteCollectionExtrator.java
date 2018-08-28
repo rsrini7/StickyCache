@@ -24,10 +24,10 @@ public class StickyNoteCollectionExtrator implements AttributeExtractor {
 		StringBuffer result = new StringBuffer();
 
 		User user = (User) element.getObjectValue();
-		Iterator i = user.getListSticky().iterator();
+		Iterator<StickyNote> i = user.getListSticky().iterator();
 
 		while (i.hasNext()) {
-			StickyNote stickyNote  = (StickyNote)i.next();
+			StickyNote stickyNote  = i.next();
 			result.append(stickyNote.getTitle()+"~"+stickyNote.getContent()+",");
 		}
 		return result.toString();

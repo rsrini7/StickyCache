@@ -22,7 +22,7 @@ import org.thymeleaf.util.StringUtils;
 
 import com.rsrini.stickycache.domain.StickyNote;
 import com.rsrini.stickycache.domain.StickyNoteFilter;
-import com.rsrini.stickycache.services.CacheService;
+import com.rsrini.stickycache.services.UserCacheService;
 
 import net.sf.ehcache.Element;
 
@@ -32,10 +32,10 @@ public class UserStickyController {
 	
 	private static final int BUFFER_SIZE = 4096;
 	
-	private final CacheService cacheService;
+	private final UserCacheService cacheService;
 	
 	@Autowired
-	public UserStickyController(CacheService cacheService){
+	public UserStickyController(UserCacheService cacheService){
 		this.cacheService = cacheService;
 	}
 	
