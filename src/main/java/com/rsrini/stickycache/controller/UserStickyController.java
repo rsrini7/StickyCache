@@ -65,6 +65,7 @@ public class UserStickyController {
 		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
 		model.addAttribute("stickyNote", new StickyNote());
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("userFilter", new UserFilter());
 		return "usersticky";
 	}
 	
@@ -82,6 +83,7 @@ public class UserStickyController {
 		model.addAttribute("stickyRecords", stickyRecords);
 		model.addAttribute("stickyNote", new StickyNote());
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("userFilter", new UserFilter());
 		
 		return "usersticky";
 	}
@@ -91,6 +93,7 @@ public class UserStickyController {
 		Collection<Element> stickyRecords = cacheService.searchSticky(stickyFilter);
 		model.addAttribute("stickyRecords", stickyRecords);
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("userFilter", new UserFilter());
 		model.addAttribute("stickyNote", new StickyNote());
 		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
 		return "usersticky";
@@ -101,6 +104,7 @@ public class UserStickyController {
 		Collection<Element> stickyRecords = cacheService.searchUserSticky(userFilter);
 		model.addAttribute("stickyRecords", stickyRecords);
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("userFilter", new UserFilter());
 		model.addAttribute("stickyNote", new StickyNote());
 		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
 		return "usersticky";
@@ -126,6 +130,10 @@ public class UserStickyController {
 		//if sticky filter element is not present, new object has been created and added..
 		if (!model.containsAttribute("stickyFilter")){
 			model.addAttribute("stickyFilter", new StickyNoteFilter());
+		}
+		
+		if (!model.containsAttribute("userFilter")){
+			model.addAttribute("userFilter", new UserFilter());
 		}
 		
 		return "usersticky";

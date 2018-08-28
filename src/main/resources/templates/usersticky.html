@@ -103,11 +103,15 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<span class="menu-breaking-line">|</span>
 	<span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<form action="#" th:action="@{/usersticky/searchuser}" th:object="${stickyFilter}"
+		<form action="#" th:action="@{/usersticky/searchuser}" th:object="${userFilter}"
 			method="post" style="display: inline">
-			<input type="text" id="searchUserID" name="userSearchValue"
+			<span style="font-size:13px"> User </span>
+			<input type="text" id="searchUserID" name="searchUserName"
+				th:field="*{searchUser}" />&nbsp;&nbsp;&nbsp;
+			<span style="font-size:13px"> Title / content </span>
+			<input type="text" name="searchUserTitleContent"
 				th:field="*{searchValue}" />&nbsp;&nbsp;&nbsp; 
-			<input type="submit" value="Search by User" />
+			<input type="submit" value="Search by User with Title or Content" />
 		</form>
 	</span>
 	

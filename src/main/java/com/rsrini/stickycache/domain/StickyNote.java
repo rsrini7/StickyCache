@@ -53,6 +53,10 @@ public class StickyNote implements Serializable {
 	public void setContent(String content) {
 		this.content = content;
 	}
+	
+	public String getTitleContent() {
+		return this.title + "~" + this.content;
+	}
 
 	@Override
 	public String toString() {

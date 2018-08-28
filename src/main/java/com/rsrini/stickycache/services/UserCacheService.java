@@ -16,6 +16,7 @@ import com.rsrini.stickycache.domain.StickyNote;
 import com.rsrini.stickycache.domain.StickyNoteFilter;
 import com.rsrini.stickycache.domain.StickyNoteFilter.StickySearchType;
 import com.rsrini.stickycache.domain.UserFilter;
+import com.rsrini.stickycache.util.StickyNoteDataExtrator;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -73,6 +74,7 @@ public class UserCacheService {
     	            //.terracotta(new TerracottaConfiguration().consistency(TerracottaConfiguration.Consistency.STRONG))
     	            .searchable(new Searchable()
     	                .searchAttribute(new SearchAttribute().name("user").expression("value.getUser()"))
+    	                .searchAttribute(new SearchAttribute().name("titleOrContent").className(StickyNoteDataExtrator.class.getName()).properties("value.getTitleContent()"))
    	            		)
    	        		)
 	        .cache(new CacheConfiguration().name(SEARCH_CACHE_NAME)
@@ -153,9 +155,12 @@ public class UserCacheService {
 		        .build(); 
 		
 		Results filteredUserStickies = null;
+		String searchUser = userFilter.getSearchUser();
 		String searchActualValue = userFilter.getSearchValue();
 		
-		Query stickyKeyQuery = queryManager.createQuery("select * from userStickyCache where user = '"+searchActualValue+"'").includeKeys().includeValues();
+		//getUserCacheElements();
+		
+		Query stickyKeyQuery = queryManager.createQuery("select * from userStickyCache where (user = '"+searchUser+"' and titleOrContent like '%"+searchActualValue+"%')").includeKeys().includeValues();
 		filteredUserStickies = stickyKeyQuery.end().execute();
 		
 		System.out.println("user list stickies: "+filteredUserStickies.all());
