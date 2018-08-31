@@ -16,11 +16,11 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
-public class StickyNoteDBCacheWriter implements CacheWriter {
+public class StickyNoteDBWriter implements CacheWriter {
 
-	static Logger logger = Logger.getLogger(StickyNoteDBCacheWriter.class);
+	static Logger logger = Logger.getLogger(StickyNoteDBWriter.class);
 
-	public StickyNoteDBCacheWriter(String iurl, String iuser, String ipass) {
+	public StickyNoteDBWriter(String iurl, String iuser, String ipass) {
 		try {
 			DBUtil.registerDB(iurl,iurl,ipass);
 		} catch (Exception ex) {

@@ -17,7 +17,10 @@ import com.rsrini.stickycache.domain.StickyNoteFilter;
 import com.rsrini.stickycache.domain.StickyNoteFilter.StickySearchType;
 import com.rsrini.stickycache.domain.UserFilter;
 import com.rsrini.stickycache.domain.UserStickyNote;
+import com.rsrini.stickycache.util.StickyNoteCacheLoader;
 import com.rsrini.stickycache.util.StickyNoteCollectionExtrator;
+import com.rsrini.stickycache.util.StickyNoteDBReadThrough;
+import com.rsrini.stickycache.util.StickyNoteDBWriterFactory;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -28,6 +31,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Result;
@@ -52,6 +56,8 @@ public class UserCacheService {
 	private Ehcache searchCache;
 	private Ehcache userStickyCache;
 	
+	private SelfPopulatingCache replaceWithSelfPopulatingCache;
+	
 	private UserCacheService(){
 		
 		// Create Cache
@@ -71,7 +77,20 @@ public class UserCacheService {
 	    CacheManager manager = CacheManager.create(managerConfig);
 	    searchCache = manager.getEhcache(SEARCH_CACHE_NAME);
 	    stickyCache = manager.getEhcache(CACHE_NAME);
+	    
+	    //replace with dbreadthrough - self populating cache
+	    replaceWithSelfPopulatingCache = replaceWithSelfPopulatingCache();
+	    manager.replaceCacheWithDecoratedCache(stickyCache, replaceWithSelfPopulatingCache); // only selfpopulating ref with refresh works
+	    
+	    //loader registration
+	    stickyCache.registerCacheLoader(new StickyNoteCacheLoader());
+	    
 	    userStickyCache = manager.getEhcache(USER_CACHE_NAME);
+	}
+
+	private SelfPopulatingCache replaceWithSelfPopulatingCache() {
+		SelfPopulatingCache selfPopulatingCache = new SelfPopulatingCache(stickyCache, new StickyNoteDBReadThrough());
+		return selfPopulatingCache;
 	}
 
 	private CacheConfiguration getCacheConfig() {
@@ -86,10 +105,23 @@ public class UserCacheService {
 		        .searchAttribute(new SearchAttribute().name("content").expression("value.getContent()"))
 		    		);
 		 
-		 cacheConfig.addCacheWriter(cacheWriterConfig("com.rsrini.stickycache.util.StickyNoteCacheDBWriterFactory"));
+		 cacheConfig.addCacheWriter(cacheWriterConfig(StickyNoteDBWriterFactory.class.getName()));
+		 
+		 //cacheConfig.addCacheDecoratorFactory(cacheDecorator(StickyNoteDBReadFactory.class.getName())); //Registering - but not retriving from db. how to refresh ?
+
+		 //cacheConfig.addCacheLoaderFactory(cacheLoaderFactoryConfiguration(StickyNoteCacheLoaderFactory.class.getName()));
 		 
 		 return cacheConfig;
 	}
+
+/*	private CacheDecoratorFactoryConfiguration cacheDecorator(String className) {
+		return new CacheDecoratorFactoryConfiguration().className(className);
+	}*/
+	
+/*	private CacheLoaderFactoryConfiguration cacheLoaderFactoryConfiguration(String className) {
+		return new CacheLoaderFactoryConfiguration().className(className).properties("type=int;startCounter=10")
+				.propertySeparator(";");
+	}*/
 
 	private CacheConfiguration getUserCacheConfig() {
 		 CacheConfiguration cacheConfig = new CacheConfiguration().name(USER_CACHE_NAME)
@@ -104,7 +136,13 @@ public class UserCacheService {
 		            .searchAttribute(new SearchAttribute().name("titleOrContent").className(StickyNoteCollectionExtrator.class.getName()).properties("value.getName()")) // dummy property required to boot the application
 		    		);
 		
-		//cacheConfig.addCacheWriter(cacheWriterConfig("com.rsrini.stickycache.util.StickyNoteCacheDBWriterFactory"));
+/*		 cacheConfig.terracotta(new TerracottaConfiguration()
+					.consistency(TerracottaConfiguration.Consistency.STRONG)
+					.nonstop(new NonstopConfiguration().enabled(true).timeoutMillis(4000)
+						.timeoutBehavior(new TimeoutBehaviorConfiguration()
+						.type(TimeoutBehaviorConfiguration.TimeoutBehaviorType.LOCAL_READS.getTypeName())))
+						);*/
+		 
 		return cacheConfig;
 	}
 	
@@ -251,6 +289,13 @@ public class UserCacheService {
 				//filteredStickies = stickyCache.createQuery().addCriteria(Query.KEY.ilike(searchValue)).includeKeys().includeValues().execute();
 				Query stickyKeyQuery = queryManager.createQuery("select * from stickyCache where title like '%"+searchActualValue+"%'").includeKeys().includeValues();
 				filteredStickies = stickyKeyQuery.end().execute();
+				
+				//temp test read from db
+				//Element element = replaceWithSelfPopulatingCache.refresh(searchActualValue); // retrived from db. but after refresh filteredStickies - value becoming null
+				//Element element = replaceWithSelfPopulatingCache.get(searchActualValue); //not returning from db
+				
+				//Element element = stickyCache.getWithLoader(searchActualValue,new StickyNoteCacheLoader(),null); //called only when key not in memory
+				//System.out.println("data from db : "+element.getObjectValue());
 				
 				searchStickies = searchResults(queryManager,searchActualValue);
 				break;
