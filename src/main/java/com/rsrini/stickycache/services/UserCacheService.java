@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.devskiller.jfairy.Fairy;
+import com.devskiller.jfairy.producer.person.Person;
+import com.devskiller.jfairy.producer.text.TextProducer;
 import com.rsrini.stickycache.domain.StickyNote;
 import com.rsrini.stickycache.domain.StickyNoteFilter;
 import com.rsrini.stickycache.domain.StickyNoteFilter.StickySearchType;
@@ -315,6 +318,7 @@ public class UserCacheService {
 				break;
 			}
 		}
+		
 		System.out.println("sticky search result size ---"+filteredStickies.all().size());
 		List<Element> elements = new ArrayList<Element>();
 		
@@ -343,5 +347,32 @@ public class UserCacheService {
 	
 	public boolean removeCacheElement(String key){
 		return  stickyCache.remove(key);
+	}
+
+	public void generateAndLoadStickyNotesIntoCache(int count) {
+
+		StickyNote stickyNote = null;
+		for(int i=0;i<count;i++) {
+			Person person = Fairy.create().person();
+			TextProducer textProducer = Fairy.create().textProducer();
+			stickyNote = new StickyNote(person.getFullName(),textProducer.word(),textProducer.sentence());
+			stickyCache.put(new Element(person.getFullName(),stickyNote));
+			addToUserCache(stickyNote, false);
+		}
+		
+	}
+	
+	public void addToUserCache(StickyNote stickyNote, boolean writeToDB) {
+		Element existingUserStickyElement = getUserStickyNote(stickyNote.getUser());
+		Element userStickyElement = null;
+		if(existingUserStickyElement == null) {
+			userStickyElement = new Element(stickyNote.getUser(), new UserStickyNote(stickyNote.getUser(), stickyNote.getTitle(), stickyNote.getContent()));
+		}else {
+			 UserStickyNote objectValue = (UserStickyNote) existingUserStickyElement.getObjectValue();
+			 objectValue.getListSticky().add(new StickyNote(stickyNote.getUser(), stickyNote.getTitle(), stickyNote.getContent()));
+			 userStickyElement = existingUserStickyElement;
+		}
+		
+		addToUserCache(userStickyElement, writeToDB);
 	}
 }

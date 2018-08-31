@@ -31,7 +31,7 @@
 		  }
 		  .popup {
 		  		width: 500px;
-		  		height: 250px;
+		  		height: 350px;
 		  		background-color: white;
 		  		top: 20%;
 		  		left: 20%;
@@ -83,16 +83,23 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<span class="menu-breaking-line">|</span>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<a href="download/" th:href="@{download/}">
-		<input type="button" value="Download"/>
-	</a> 
-
+	<form action="#" th:action="@{/usersticky/download}" method="post" style="display: inline">
+		<input type="submit" value="Download"/>
+	</form>
+	
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<span class="menu-breaking-line">|</span>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<a href="searchdownload/" th:href="@{searchdownload/}">
-		<input type="button" value="Search Count Download"/>
-	</a>  
+	<form action="#" th:action="@{/usersticky/searchdownload}" method="post" style="display: inline">
+		<input type="submit" value="Search Stat Download"/>
+	</form>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span class="menu-breaking-line">|</span>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<form action="#" th:action="@{/usersticky/load/5}" method="post" style="display: inline">
+		<input type="submit" value="Load Data"/>
+	</form>
 
 	<div class="dividing-line"></div>
 	<br />
@@ -123,9 +130,12 @@
 	<th:block th:each="stickyRecord: ${stickyRecords}">
 		<table
 			style="border-width: 1px; border-style: solid; border-spacing: 0px; display: inline; float: left; margin: 10px">
+			<tr>
+				<td th:id="${'user'+stickyRecordStat.index}"  th:text="${stickyRecord.getObjectValue().getUser()}"></td>
+			</tr>
 			<tr style="background-color: lightgrey; border-style: solid;">
 				<th >
-				<label th:id="${'title'+stickyRecordStat.index}" th:text="${stickyRecord.getObjectKey()}"></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<label th:id="${'title'+stickyRecordStat.index}" th:text="${stickyRecord.getObjectValue().getTitle()}"></label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<a href="#overlay" th:id="${'a'+stickyRecordStat.index}"
 				    onclick="editHandler(this)">
 				   <img src="../static/images/editicon.png" th:src="@{/images/editicon.png}" title="Edit Sticky" class="iconstyle"></img></a>&nbsp;&nbsp;
@@ -136,7 +146,6 @@
 			</tr>
 			<tr>
 				<td th:id="${'content'+stickyRecordStat.index}" style="white-space:pre" th:text="${stickyRecord.getObjectValue().getContent()}"></td>
-				<td th:id="${'user'+stickyRecordStat.index}" style="display:none;white-space:pre" th:text="${stickyRecord.getObjectValue().getUser()}"></td>
 			</tr>
 		</table>
     </th:block>

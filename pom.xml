@@ -51,6 +51,14 @@
       		<!-- scope>system</scope>
       		<systemPath>D:\MyWS\JavaWS\demo\libs\terracotta-toolkit-runtime-ee-4.3.5.0.34.jar</systemPath-->
     	</dependency>
+    	
+    	<dependency>
+      		<groupId>com.devskiller</groupId>
+      		<artifactId>jfairy</artifactId>
+      		<version>0.6.2</version>
+      		<!-- scope>system</scope>
+      		<systemPath>D:\MyWS\JavaWS\demo\libs\jfairy-0.6.1-SNAPSHOT.jar</systemPath-->
+    	</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -125,7 +133,7 @@
 		            </execution>
 		        </executions>
 		    </plugin>
-		    <!-- plugin>
+		    <plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-dependency-plugin</artifactId>
 			    <executions>
@@ -142,17 +150,31 @@
 			            </configuration>
 			        </execution>
 			    </executions>
-			</plugin-->
+			</plugin>
 		</plugins>
 	</build>
 
 	<repositories>
+	<repository>
+			<id>sonatype-repository</id>
+			<url>https://oss.sonatype.org/content/repositories/releases</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
 		<repository>
-		<id>terracotta-repository</id>
-		<url>http://www.terracotta.org/download/reflector/releases</url>
-		<releases>
-			<enabled>true</enabled>
-		</releases>
+			<id>terracotta-repository</id>
+			<url>http://www.terracotta.org/download/reflector/releases</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>jfairy-repository</id>
+			<url>https://mvnrepository.com/artifact/com.devskiller/jfairy</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
 		</repository>
 	</repositories>
 
