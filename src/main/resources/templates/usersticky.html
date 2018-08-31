@@ -49,6 +49,7 @@
     	document.getElementById('popupSubmit').value='Edit';
     	document.getElementById('popupHeader').innerHTML='Edit Sticky Note';
     	idSplitArr = obj.id.split("a");
+    	document.getElementById('popupUser').value=document.getElementById('user'+idSplitArr[1]).textContent;
     	document.getElementById('popupTitle').value=document.getElementById('title'+idSplitArr[1]).textContent;
     	document.getElementById('popupSticky').value=document.getElementById('content'+idSplitArr[1]).textContent;
     }	
@@ -62,7 +63,7 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<a href="#overlay" id="addsticky" 
 		style="display: inline; text-decoration: none"
-		onclick="document.getElementById('popupSubmit').value='Add';document.getElementById('popupHeader').innerHTML='Add a Sticky Note';document.getElementById('popupTitle').removeAttribute('readonly')">
+		onclick="document.getElementById('popupSubmit').value='Add';document.getElementById('popupHeader').innerHTML='Add a Sticky Note';document.getElementById('popupTitle').removeAttribute('readonly');document.getElementById('popupUser').removeAttribute('readonly');">
 	<input type="button" value="Add Sticky Note"/> 
 	</a>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -135,6 +136,7 @@
 			</tr>
 			<tr>
 				<td th:id="${'content'+stickyRecordStat.index}" style="white-space:pre" th:text="${stickyRecord.getObjectValue().getContent()}"></td>
+				<td th:id="${'user'+stickyRecordStat.index}" style="display:none;white-space:pre" th:text="${stickyRecord.getObjectValue().getUser()}"></td>
 			</tr>
 		</table>
     </th:block>
@@ -145,7 +147,7 @@
 			<p class="popup-header" id="popupHeader">Add/Edit a Sticky Note</p>
 			<form action="#" th:action="@{/usersticky/save}" th:object="${stickyNote}" method="post">
 				<p style="font-size:13px"> User </p>
-				<input id="hiddenuser" type="text" name="username" size="60" th:field="*{user}"/>
+				<input id="popupUser" type="text" name="username" size="60" placeholder="User of the Sticky Note" th:field="*{user}" readonly="true"/>
 		        <p style="font-size:13px"> Title </p> 
 		        <input id="popupTitle" type="text" name="key" size="60" placeholder="Title(purpose and need of the Sticky Note)" readonly="true" th:field="*{title}"/>
 		        <br/>
