@@ -23,6 +23,7 @@ import org.thymeleaf.util.StringUtils;
 import com.rsrini.stickycache.domain.StickyNote;
 import com.rsrini.stickycache.domain.StickyNoteFilter;
 import com.rsrini.stickycache.domain.UserFilter;
+import com.rsrini.stickycache.domain.UserStickyNote;
 import com.rsrini.stickycache.services.UserCacheService;
 
 import net.sf.ehcache.Element;
@@ -32,9 +33,13 @@ import net.sf.ehcache.Element;
 public class UserStickyController {
 	
 	private static final int BUFFER_SIZE = 4096;
+
+	private static final boolean WRITE_BEHIND_DB_FLAG_USER = false; // need to create new cachewriter if enabled.
+	
+	private static final boolean WRITE_BEHIND_DB_FLAG = true;
 	
 	private final UserCacheService cacheService;
-	
+
 	@Autowired
 	public UserStickyController(UserCacheService cacheService){
 		this.cacheService = cacheService;
@@ -45,10 +50,10 @@ public class UserStickyController {
 							@RequestParam(value="key", required=false, defaultValue = "default") String key, 
 				            @RequestParam(value="value", required=false) String value, Model model){
 		System.out.println("entered into add sticky"+key);
-		Element element = new Element(key,new StickyNote(key, value));
-		Element userElement = new Element(user,new StickyNote(key,value));
-		Collection<Element> stickyRecords  = cacheService.addToCache(element);
-		cacheService.addToUserCache(userElement);
+		Element element = new Element(key,new StickyNote(user, key, value));
+		Element userElement = new Element(user,new StickyNote(user, key,value));
+		Collection<Element> stickyRecords  = cacheService.addToCache(element,WRITE_BEHIND_DB_FLAG);
+		cacheService.addToUserCache(userElement,WRITE_BEHIND_DB_FLAG_USER);
 		model.addAttribute("stickyRecords", stickyRecords);
 		System.out.println("elements in sticky records - "+stickyRecords);
 		return "usersticky";
@@ -73,11 +78,20 @@ public class UserStickyController {
 	public String saveToSticky(@ModelAttribute StickyNote stickyNote, Model model){
 		System.out.println("sticky element"+model.asMap().get("stickyNote"));
 		System.out.println("sticky element value"+stickyNote);
-		Element stickyElement = new Element(stickyNote.getTitle(), new StickyNote(stickyNote.getTitle(), stickyNote.getContent()));
-		Collection<Element> stickyRecords  = cacheService.addToCache(stickyElement);
+		Element stickyElement = new Element(stickyNote.getTitle(), new StickyNote(stickyNote.getUser(), stickyNote.getTitle(), stickyNote.getContent()));
+		Collection<Element> stickyRecords  = cacheService.addToCache(stickyElement,WRITE_BEHIND_DB_FLAG);
 		
-		Element userStickyElement = new Element(stickyNote.getUser(), new StickyNote(stickyNote.getUser(), stickyNote.getTitle(), stickyNote.getContent()));
-		cacheService.addToUserCache(userStickyElement);
+		Element existingUserStickyElement = cacheService.getUserStickyNote(stickyNote.getUser());
+		Element userStickyElement = null;
+		if(existingUserStickyElement == null) {
+			userStickyElement = new Element(stickyNote.getUser(), new UserStickyNote(stickyNote.getUser(), stickyNote.getTitle(), stickyNote.getContent()));
+		}else {
+			 UserStickyNote objectValue = (UserStickyNote) existingUserStickyElement.getObjectValue();
+			 objectValue.getListSticky().add(new StickyNote(stickyNote.getUser(), stickyNote.getTitle(), stickyNote.getContent()));
+			 userStickyElement = existingUserStickyElement;
+		}
+		
+		cacheService.addToUserCache(userStickyElement, WRITE_BEHIND_DB_FLAG_USER);
 		
 		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
 		model.addAttribute("stickyRecords", stickyRecords);

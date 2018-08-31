@@ -31,6 +31,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<log4j.version>1.2.17</log4j.version>
 		<start-class>com.rsrini.stickycache.StickyCacheApplication</start-class>
   	</properties>
 
@@ -39,21 +40,32 @@
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-ee</artifactId>
 			<version>${ehcache-ee.version}</version>
-			<scope>system</scope>
-			<systemPath>D:\MyWS\JavaWS\demo\libs\ehcache-ee-2.10.5.0.59.jar</systemPath>
+			<!-- scope>system</scope>
+			<systemPath>D:\MyWS\JavaWS\demo\libs\ehcache-ee-2.10.5.0.59.jar</systemPath-->
 		</dependency>
 
 		<dependency>
       		<groupId>org.terracotta</groupId>
       		<artifactId>terracotta-toolkit-runtime-ee</artifactId>
       		<version>${toolkit.version}</version>
-      		<scope>system</scope>
-      		<systemPath>D:\MyWS\JavaWS\demo\libs\terracotta-toolkit-runtime-ee-4.3.5.0.34.jar</systemPath>
+      		<!-- scope>system</scope>
+      		<systemPath>D:\MyWS\JavaWS\demo\libs\terracotta-toolkit-runtime-ee-4.3.5.0.34.jar</systemPath-->
     	</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
+		<dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 
 	</dependencies>

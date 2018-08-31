@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import com.rsrini.stickycache.domain.StickyNote;
-import com.rsrini.stickycache.domain.User;
+import com.rsrini.stickycache.domain.UserStickyNote;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -23,12 +23,13 @@ public class StickyNoteCollectionExtrator implements AttributeExtractor {
 		//LOG.info("attributeName"+attributeName);
 		StringBuffer result = new StringBuffer();
 
-		User user = (User) element.getObjectValue();
+		UserStickyNote user = (UserStickyNote) element.getObjectValue();
 		Iterator<StickyNote> i = user.getListSticky().iterator();
 
 		while (i.hasNext()) {
 			StickyNote stickyNote  = i.next();
-			result.append(stickyNote.getTitle()+"~"+stickyNote.getContent()+",");
+			//result.append(stickyNote.getTitle()+"~"+stickyNote.getContent()+",");
+			result.append(stickyNote.getTitle()+",");
 		}
 		return result.toString();
 	}

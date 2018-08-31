@@ -16,12 +16,14 @@ import com.rsrini.stickycache.domain.StickyNote;
 import com.rsrini.stickycache.domain.StickyNoteFilter;
 import com.rsrini.stickycache.domain.StickyNoteFilter.StickySearchType;
 import com.rsrini.stickycache.domain.UserFilter;
-import com.rsrini.stickycache.util.StickyNoteDataExtrator;
+import com.rsrini.stickycache.domain.UserStickyNote;
+import com.rsrini.stickycache.util.StickyNoteCollectionExtrator;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.SearchAttribute;
@@ -55,28 +57,8 @@ public class UserCacheService {
 		// Create Cache
 	    Configuration managerConfig = new Configuration()
 	        //.terracotta(new TerracottaClientConfiguration().url("localhost:9510"))
-	        .cache(new CacheConfiguration().name(CACHE_NAME)
-	            .eternal(true)
-	            .maxBytesLocalHeap(1, MemoryUnit.MEGABYTES)
-	            .maxBytesLocalOffHeap(128, MemoryUnit.MEGABYTES)
-	            .eternal(true).copyOnRead(true)
-	            //.terracotta(new TerracottaConfiguration().consistency(TerracottaConfiguration.Consistency.STRONG))
-	            .searchable(new Searchable()
-	                .searchAttribute(new SearchAttribute().name("title").expression("value.getTitle()"))
-	                .searchAttribute(new SearchAttribute().name("content").expression("value.getContent()"))
-	            		)
-	        		)
-	        .cache(new CacheConfiguration().name(USER_CACHE_NAME)
-    	            .eternal(true)
-    	            .maxBytesLocalHeap(1, MemoryUnit.MEGABYTES)
-    	            .maxBytesLocalOffHeap(128, MemoryUnit.MEGABYTES)
-    	            .eternal(true).copyOnRead(true)
-    	            //.terracotta(new TerracottaConfiguration().consistency(TerracottaConfiguration.Consistency.STRONG))
-    	            .searchable(new Searchable()
-    	                .searchAttribute(new SearchAttribute().name("user").expression("value.getUser()"))
-    	                .searchAttribute(new SearchAttribute().name("titleOrContent").className(StickyNoteDataExtrator.class.getName()).properties("value.getTitleContent()"))
-   	            		)
-   	        		)
+	        .cache(getCacheConfig())
+	        .cache(getUserCacheConfig())
 	        .cache(new CacheConfiguration().name(SEARCH_CACHE_NAME)
 	            .eternal(true)
 	            .maxBytesLocalHeap(128, MemoryUnit.MEGABYTES)
@@ -85,10 +67,53 @@ public class UserCacheService {
 	                .searchAttribute(new SearchAttribute().name("searchedData").expression("key"))
 		      ));
 
+	    
 	    CacheManager manager = CacheManager.create(managerConfig);
 	    searchCache = manager.getEhcache(SEARCH_CACHE_NAME);
 	    stickyCache = manager.getEhcache(CACHE_NAME);
 	    userStickyCache = manager.getEhcache(USER_CACHE_NAME);
+	}
+
+	private CacheConfiguration getCacheConfig() {
+		 CacheConfiguration cacheConfig = new CacheConfiguration().name(CACHE_NAME)
+		    .eternal(true)
+		    .maxBytesLocalHeap(1, MemoryUnit.MEGABYTES)
+		    .maxBytesLocalOffHeap(128, MemoryUnit.MEGABYTES)
+		    .eternal(true).copyOnRead(true)
+		    //.terracotta(new TerracottaConfiguration().consistency(TerracottaConfiguration.Consistency.STRONG))
+		    .searchable(new Searchable()
+		        .searchAttribute(new SearchAttribute().name("title").expression("value.getTitle()"))
+		        .searchAttribute(new SearchAttribute().name("content").expression("value.getContent()"))
+		    		);
+		 
+		 cacheConfig.addCacheWriter(cacheWriterConfig("com.rsrini.stickycache.util.StickyNoteCacheDBWriterFactory"));
+		 
+		 return cacheConfig;
+	}
+
+	private CacheConfiguration getUserCacheConfig() {
+		 CacheConfiguration cacheConfig = new CacheConfiguration().name(USER_CACHE_NAME)
+		        .eternal(true)
+		        .maxBytesLocalHeap(1, MemoryUnit.MEGABYTES)
+		        .maxBytesLocalOffHeap(128, MemoryUnit.MEGABYTES)
+		        .eternal(true).copyOnRead(true)
+		        //.terracotta(new TerracottaConfiguration().consistency(TerracottaConfiguration.Consistency.STRONG))
+		        .searchable(new Searchable()
+		            .searchAttribute(new SearchAttribute().name("user").expression("value.getName()"))
+		            //.searchAttribute(new SearchAttribute().name("titleOrContent").className(StickyNoteDataExtrator.class.getName()).properties("value.getTitleContent()"))
+		            .searchAttribute(new SearchAttribute().name("titleOrContent").className(StickyNoteCollectionExtrator.class.getName()).properties("value.getName()")) // dummy property required to boot the application
+		    		);
+		
+		//cacheConfig.addCacheWriter(cacheWriterConfig("com.rsrini.stickycache.util.StickyNoteCacheDBWriterFactory"));
+		return cacheConfig;
+	}
+	
+	private CacheWriterConfiguration cacheWriterConfig(String className) {
+		return new CacheWriterConfiguration().writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
+				.maxWriteDelay(3).rateLimitPerSecond(10).notifyListenersOnException(true).writeCoalescing(true)
+				.writeBatching(true).writeBatchSize(2).retryAttempts(5).retryAttemptDelaySeconds(5).cacheWriterFactory(
+						new CacheWriterConfiguration.CacheWriterFactoryConfiguration().className(className)
+						.properties("url=jdbc:h2:mem:stickycache_db;DB_CLOSE_ON_EXIT=FALSE;id=sa;pw=").propertySeparator(";"));
 	}
 	
 	@PostConstruct
@@ -101,13 +126,21 @@ public class UserCacheService {
 		}
 	}
 
-	public void addToUserCache(Element element){
-		userStickyCache.put(element);
+	public void addToUserCache(Element element, boolean writeBehindDbFlag){
+		if(writeBehindDbFlag) {
+			userStickyCache.putWithWriter(element);
+		}else {
+			userStickyCache.put(element);
+		}
 		System.out.println(" element to be added to usercache "+element);
 	}
 	
-	public Collection<Element> addToCache(Element element){
-		stickyCache.put(element);
+	public Collection<Element> addToCache(Element element, boolean writeBehindDbFlag){
+		if(writeBehindDbFlag) {
+			stickyCache.putWithWriter(element);
+		}else {
+			stickyCache.put(element);
+		}
 		System.out.println(" element to be added "+element);
 		return getCacheElements();
 	}
@@ -122,6 +155,10 @@ public class UserCacheService {
 		}
 		/***to be removed**/
 		return elements;
+	}
+	
+	public Element getUserStickyNote(String key) {
+		return userStickyCache.get(key);
 	}
 	
 	public Collection<Element> getCacheElements(){
@@ -161,17 +198,21 @@ public class UserCacheService {
 		//getUserCacheElements();
 		
 		Query stickyKeyQuery = queryManager.createQuery("select * from userStickyCache where (user = '"+searchUser+"' and titleOrContent like '%"+searchActualValue+"%')").includeKeys().includeValues();
+		
+//		Query stickyKeyQuery = queryManager.createQuery("select * from userStickyCache where (user = '"+searchUser+"')").includeKeys().includeValues();
+		
 		filteredUserStickies = stickyKeyQuery.end().execute();
 		
 		System.out.println("user list stickies: "+filteredUserStickies.all());
 		
 		List<Element> elements = new ArrayList<Element>();
 		for (Result filterSticky: filteredUserStickies.all()){
-			StickyNote note  = (StickyNote) filterSticky.getValue();
-			Element element = new Element(note.getTitle(),note);
-			System.out.println("sticky key -"+filterSticky.getKey());
-			System.out.println("sticky value -"+filterSticky.getValue());
-			elements.add(element);
+			System.out.println(filterSticky);
+			UserStickyNote userNote  = (UserStickyNote) filterSticky.getValue();
+			for(StickyNote note: userNote.getListSticky()) {
+				Element element = new Element(note.getTitle(),note);
+				elements.add(element);
+			}
 		}
 		return elements;
 		
@@ -239,7 +280,8 @@ public class UserCacheService {
 		System.out.println("query based count : "+searchCount);
 		
 		for (Result filterSticky: filteredStickies.all()){
-			Element element = new Element(filterSticky.getKey()+" ( "+searchCount+" )", filterSticky.getValue());
+			//Element element = new Element(filterSticky.getKey()+" ( "+searchCount+" )", filterSticky.getValue());
+			Element element = new Element(filterSticky.getKey(), filterSticky.getValue());
 			System.out.println("sticky key -"+filterSticky.getKey());
 			System.out.println("sticky value -"+filterSticky.getValue());
 			elements.add(element);

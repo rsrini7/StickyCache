@@ -156,7 +156,8 @@ public class CacheService {
 		System.out.println("query based count : "+searchCount);
 		
 		for (Result filterSticky: filteredStickies.all()){
-			Element element = new Element(filterSticky.getKey()+" ( "+searchCount+" )", filterSticky.getValue());
+			//Element element = new Element(filterSticky.getKey()+" ( "+searchCount+" )", filterSticky.getValue());
+			Element element = new Element(filterSticky.getKey(), filterSticky.getValue());
 			System.out.println("sticky key -"+filterSticky.getKey());
 			System.out.println("sticky value -"+filterSticky.getValue());
 			elements.add(element);

@@ -17,11 +17,11 @@ public class StickyNote implements Serializable {
 	
 	public StickyNote() {}
 	
-	public StickyNote(String title, String content) {
+	/*public StickyNote(String title, String content) {
 		super();
 		this.title = title;
 		this.content = content;
-	}
+	}*/
 	
 	public StickyNote(String user, String title, String content) {
 		super();
@@ -54,9 +54,9 @@ public class StickyNote implements Serializable {
 		this.content = content;
 	}
 	
-	public String getTitleContent() {
+/*	public String getTitleContent() {
 		return this.title + "~" + this.content;
-	}
+	}*/
 
 	@Override
 	public String toString() {
