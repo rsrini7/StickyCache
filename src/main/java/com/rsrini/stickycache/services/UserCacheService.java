@@ -20,21 +20,25 @@ import com.rsrini.stickycache.domain.StickyNoteFilter;
 import com.rsrini.stickycache.domain.StickyNoteFilter.StickySearchType;
 import com.rsrini.stickycache.domain.UserFilter;
 import com.rsrini.stickycache.domain.UserStickyNote;
+import com.rsrini.stickycache.util.StickyNoteCacheListenerFactory;
 import com.rsrini.stickycache.util.StickyNoteCacheLoader;
 import com.rsrini.stickycache.util.StickyNoteCollectionExtrator;
 import com.rsrini.stickycache.util.StickyNoteDBReadThrough;
 import com.rsrini.stickycache.util.StickyNoteDBWriterFactory;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import net.sf.ehcache.event.CacheEventListenerAdapter;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Result;
@@ -49,11 +53,16 @@ public class UserCacheService {
 	private static final String USER_CACHE_NAME = "userStickyCache";
 	private static final String SEARCH_CACHE_NAME = "searchCache";
 	
+	private final static String CACHE_POLICY = "LRU"; //LFU
+	
 	@Value("${sticky.cache.runMode}")
 	private String runCacheMode;
 	
 	@Autowired
 	private ApplicationContext applicationContext;
+	
+	@Autowired
+	private MultiThreadedCacheLoader multiThreadedCacheLoader;
 	
 	private Ehcache stickyCache;
 	private Ehcache searchCache;
@@ -89,6 +98,16 @@ public class UserCacheService {
 	    stickyCache.registerCacheLoader(new StickyNoteCacheLoader());
 	    
 	    userStickyCache = manager.getEhcache(USER_CACHE_NAME);
+	    
+	    //userStickyCache.setNodeBulkLoadEnabled(true);
+	    
+	    userStickyCache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter() {
+	    	@Override
+	    	public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
+	    		System.out.println(Thread.currentThread().getName() + ":EventNotificationService user sticky cache put from adaptor " + element.getObjectKey().toString());
+	    	}
+	        
+	      });
 	}
 
 	private SelfPopulatingCache replaceWithSelfPopulatingCache() {
@@ -110,11 +129,19 @@ public class UserCacheService {
 		 
 		 cacheConfig.addCacheWriter(cacheWriterConfig(StickyNoteDBWriterFactory.class.getName()));
 		 
+		 cacheConfig.setMemoryStoreEvictionPolicy(CACHE_POLICY);
+		 
 		 //cacheConfig.addCacheDecoratorFactory(cacheDecorator(StickyNoteDBReadFactory.class.getName())); //Registering - but not retriving from db. how to refresh ?
 
 		 //cacheConfig.addCacheLoaderFactory(cacheLoaderFactoryConfiguration(StickyNoteCacheLoaderFactory.class.getName()));
 		 
+		 cacheConfig.addCacheEventListenerFactory(getCacheEventListnerConfig(StickyNoteCacheListenerFactory.class.getName()));
+		 
 		 return cacheConfig;
+	}
+	
+	private CacheEventListenerFactoryConfiguration getCacheEventListnerConfig(String className) {
+		return new CacheEventListenerFactoryConfiguration().className(className).listenFor("all");
 	}
 
 /*	private CacheDecoratorFactoryConfiguration cacheDecorator(String className) {
@@ -131,7 +158,7 @@ public class UserCacheService {
 		        .eternal(true)
 		        .maxBytesLocalHeap(1, MemoryUnit.MEGABYTES)
 		        .maxBytesLocalOffHeap(128, MemoryUnit.MEGABYTES)
-		        .eternal(true).copyOnRead(true)
+		        .copyOnRead(false)
 		        //.terracotta(new TerracottaConfiguration().consistency(TerracottaConfiguration.Consistency.STRONG))
 		        .searchable(new Searchable()
 		            .searchAttribute(new SearchAttribute().name("user").expression("value.getName()"))
@@ -173,7 +200,7 @@ public class UserCacheService {
 		}else {
 			userStickyCache.put(element);
 		}
-		System.out.println(" element to be added to usercache "+element);
+		//System.out.println(" element to be added to usercache "+element);
 	}
 	
 	public Collection<Element> addToCache(Element element, boolean writeBehindDbFlag){
@@ -182,7 +209,7 @@ public class UserCacheService {
 		}else {
 			stickyCache.put(element);
 		}
-		System.out.println(" element to be added "+element);
+	//	System.out.println(" element to be added "+element);
 		return getCacheElements();
 	}
 	
@@ -191,9 +218,9 @@ public class UserCacheService {
 		System.out.println("userlevel key set::::: "+keysWithElements.keySet());
 		Collection<Element> elements = keysWithElements.values();
 		/***to be removed**/
-		for (Element element1: elements){
+		/*for (Element element1: elements){
 			System.out.println("user level key -" + element1.getObjectKey() + " value - "+ element1.getObjectValue());
-		}
+		}*/
 		/***to be removed**/
 		return elements;
 	}
@@ -204,14 +231,14 @@ public class UserCacheService {
 	
 	public Collection<Element> getCacheElements(){
 		Map<Object, Element> keysWithElements = stickyCache.getAll(stickyCache.getKeys());
-		System.out.println("key set::::: "+keysWithElements.keySet());
+		//System.out.println("key set::::: "+keysWithElements.keySet());
 		Collection<Element> elements = keysWithElements.values();
 		/***to be removed**/
-		System.out.println("context property source bean injection" + applicationContext);
-		System.out.println("cache mode"+runCacheMode);
-		for (Element element1: elements){
+		//System.out.println("context property source bean injection" + applicationContext);
+		//System.out.println("cache mode"+runCacheMode);
+		/*for (Element element1: elements){
 			System.out.println("key -" + element1.getObjectKey() + " value - "+ element1.getObjectValue());
-		}
+		}*/
 		/***to be removed**/
 		return elements;
 	}
@@ -248,7 +275,7 @@ public class UserCacheService {
 		
 		List<Element> elements = new ArrayList<Element>();
 		for (Result filterSticky: filteredUserStickies.all()){
-			System.out.println(filterSticky);
+			//System.out.println(filterSticky);
 			UserStickyNote userNote  = (UserStickyNote) filterSticky.getValue();
 			for(StickyNote note: userNote.getListSticky()) {
 				Element element = new Element(note.getTitle(),note);
@@ -352,17 +379,30 @@ public class UserCacheService {
 	public void generateAndLoadStickyNotesIntoCache(int count) {
 
 		StickyNote stickyNote = null;
+		Person person = Fairy.create().person();
+		
 		for(int i=0;i<count;i++) {
-			Person person = Fairy.create().person();
+			
+			if(i%2==0)
+				person = Fairy.create().person();
+			
 			TextProducer textProducer = Fairy.create().textProducer();
+			
 			stickyNote = new StickyNote(person.getFullName(),textProducer.word(),textProducer.sentence());
-			stickyCache.put(new Element(person.getFullName(),stickyNote));
+			
+			stickyCache.put(new Element(stickyNote.getTitle(),stickyNote));
+			
 			addToUserCache(stickyNote, false);
 		}
 		
 	}
 	
 	public void addToUserCache(StickyNote stickyNote, boolean writeToDB) {
+		Element userStickyElement = getUserElement(stickyNote);
+		addToUserCache(userStickyElement, writeToDB);
+	}
+
+	public Element getUserElement(StickyNote stickyNote) {
 		Element existingUserStickyElement = getUserStickyNote(stickyNote.getUser());
 		Element userStickyElement = null;
 		if(existingUserStickyElement == null) {
@@ -372,7 +412,18 @@ public class UserCacheService {
 			 objectValue.getListSticky().add(new StickyNote(stickyNote.getUser(), stickyNote.getTitle(), stickyNote.getContent()));
 			 userStickyElement = existingUserStickyElement;
 		}
+		return userStickyElement;
+	}
+
+	public void generateAndBulkLoadStickyNotesIntoCache(int count) {
 		
-		addToUserCache(userStickyElement, writeToDB);
+		multiThreadedCacheLoader.loadData(stickyCache, count);
+		
+		try {
+			multiThreadedCacheLoader.shutdownAndWaitFor(10);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

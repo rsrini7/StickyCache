@@ -77,7 +77,10 @@ public class UserStickyController {
 	public String loadStickyNote(@PathVariable("count") int count, Model model){
 		System.out.println("Executing the load with count : "+count);
 		
-		cacheService.generateAndLoadStickyNotesIntoCache(count);
+		if(count <= 10)
+			cacheService.generateAndLoadStickyNotesIntoCache(count);
+		else
+			cacheService.generateAndBulkLoadStickyNotesIntoCache(count);
 		
 		Collection<Element> stickyRecords  = cacheService.getCacheElements();
 		model.addAttribute("stickyRecords", stickyRecords);
