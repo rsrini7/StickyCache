@@ -426,4 +426,36 @@ public class UserCacheService {
 			e.printStackTrace();
 		}
 	}
+
+	public Collection<Element> getTopSearchCacheElements(int count) {
+
+		List<Element> elements = new ArrayList<Element>();
+		
+		QueryManager queryManager = QueryManagerBuilder
+		        .newQueryManagerBuilder() 
+		        .addCache(stickyCache)
+		        .addCache(searchCache)
+		        .build(); 
+		
+		String queryStr = "select * from searchCache order by value desc limit "+count;
+		System.out.println("Search Cache Query: "+ queryStr);
+		Query searchStickyKeyQuery = queryManager.createQuery(queryStr).includeKeys().includeValues();
+		Results searchStickies = searchStickyKeyQuery.end().execute();
+
+		for (Result filterSearchSticky: searchStickies.all()){
+			queryStr = "select * from stickyCache where (title  like '%"+filterSearchSticky.getKey()+"%' or content  like '%"+filterSearchSticky.getKey()+"%')";
+			System.out.println("Sticky Cache Query: "+ queryStr);
+			Query stickyKeyQuery = queryManager.createQuery(queryStr).includeKeys().includeValues();
+			Results stickies = stickyKeyQuery.end().execute();
+			
+			for (Result filterSticky: stickies.all()){
+				Element element = new Element(filterSticky.getKey(), filterSticky.getValue());
+				elements.add(element);
+			}
+		}
+		
+		
+		return elements;
+		
+	}
 }

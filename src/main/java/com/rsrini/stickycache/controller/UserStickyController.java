@@ -48,13 +48,13 @@ public class UserStickyController {
 	public String addToSticky(@RequestParam(value="user", required=false, defaultValue = "srini") String user,
 							@RequestParam(value="key", required=false, defaultValue = "default") String key, 
 				            @RequestParam(value="value", required=false) String value, Model model){
-		System.out.println("entered into add sticky"+key);
+		//System.out.println("entered into add sticky"+key);
 		Element element = new Element(key,new StickyNote(user, key, value));
 		Element userElement = new Element(user,new StickyNote(user, key,value));
 		Collection<Element> stickyRecords  = cacheService.addToCache(element,WRITE_BEHIND_DB_FLAG);
 		cacheService.addToUserCache(userElement,WRITE_BEHIND_DB_FLAG_USER);
 		model.addAttribute("stickyRecords", stickyRecords);
-		System.out.println("elements in sticky records - "+stickyRecords);
+		//System.out.println("elements in sticky records - "+stickyRecords);
 		return "usersticky";
 	}
 	
@@ -90,6 +90,22 @@ public class UserStickyController {
 		model.addAttribute("userFilter", new UserFilter());
 		return "usersticky";
 	}
+	
+	@RequestMapping("/loadTopSearch/{count}")
+	public String loadTopSearch(@PathVariable("count") int count, Model model){
+		
+		System.out.println("Executing the load top "+count+" searches");
+		
+		Collection<Element> stickyRecords  = cacheService.getTopSearchCacheElements(count);
+		model.addAttribute("stickyRecords", stickyRecords);
+		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
+		model.addAttribute("stickyNote", new StickyNote());
+		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("userFilter", new UserFilter());
+		return "usersticky";
+	}
+	
+	
 	
 	@RequestMapping("/save")
 	public String saveToSticky(@ModelAttribute StickyNote stickyNote, Model model){
