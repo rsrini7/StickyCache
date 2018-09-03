@@ -291,17 +291,22 @@ public class UserCacheService {
 
 	public Collection<Element> searchSticky(StickyNoteFilter stickyFilter) {
 		
+		String searchActualValue = stickyFilter.getSearchValue();
+		
+		if(stickyFilter.isLoadFromDB()) {
+			Element element = stickyCache.getWithLoader(searchActualValue,new StickyNoteCacheLoader(),null); //called only when key not in memory
+			stickyCache.putIfAbsent(element);
+			System.out.println("data from db and loaded to cache : "+element.getObjectValue());
+		}
+		
 		QueryManager queryManager = QueryManagerBuilder
 		        .newQueryManagerBuilder() 
 		        .addCache(stickyCache)
 		        .addCache(searchCache)
 		        .build(); 
 		
-		//ehcacheuser.xml
 		Attribute<String> title = stickyCache.getSearchAttribute("title");
 		Attribute<String> content = stickyCache.getSearchAttribute("content");
-		
-		String searchActualValue = stickyFilter.getSearchValue();
 		
 		if(searchActualValue!=null  && searchActualValue.trim().length() != 0) {
 			Element searchedElement =  searchCache.get(searchActualValue);
@@ -326,9 +331,6 @@ public class UserCacheService {
 				//temp test read from db
 				//Element element = replaceWithSelfPopulatingCache.refresh(searchActualValue); // retrived from db. but after refresh filteredStickies - value becoming null
 				//Element element = replaceWithSelfPopulatingCache.get(searchActualValue); //not returning from db
-				
-				//Element element = stickyCache.getWithLoader(searchActualValue,new StickyNoteCacheLoader(),null); //called only when key not in memory
-				//System.out.println("data from db : "+element.getObjectValue());
 				
 				searchStickies = searchResults(queryManager,searchActualValue);
 				break;
@@ -461,8 +463,12 @@ public class UserCacheService {
 
 	public void generateAndLoadStickyNotesIntoDBOnly(int count) {
 		List<StickyNote> stickyNotes = StickyCacheDataUtil.generateStickyNoteData(count);
-		
+		System.out.println("Generated data for DB before inserting to DB : "+stickyNotes);
 		StickyCacheDataUtil.saveDataToDB(stickyNotes);
+	}
+
+	public Collection<StickyNote> searchStickyInDB(StickyNoteFilter stickyFilter) {
+		return StickyCacheDataUtil.retieveDataFromDB(stickyFilter);
 	}
 	
 	

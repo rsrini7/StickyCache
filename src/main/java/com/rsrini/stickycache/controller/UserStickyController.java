@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletResponse;
@@ -90,7 +91,7 @@ public class UserStickyController {
 	
 	@RequestMapping("/loadDataToDB/{count}")
 	public String loadDataToDB(@PathVariable("count") int count, Model model){
-		System.out.println("Executing the load with count : "+count);
+		System.out.println("Executing the loadDataToDB with count : "+count);
 		
 		cacheService.generateAndLoadStickyNotesIntoDBOnly(count);
 		
@@ -135,8 +136,6 @@ public class UserStickyController {
 		return "usersticky";
 	}
 	
-	
-	
 	@RequestMapping("/save")
 	public String saveToSticky(@ModelAttribute StickyNote stickyNote, Model model){
 		System.out.println("sticky element"+model.asMap().get("stickyNote"));
@@ -160,6 +159,20 @@ public class UserStickyController {
 	public String searchSticky(@ModelAttribute StickyNoteFilter stickyFilter, Model model){
 		Collection<Element> stickyRecords = cacheService.searchSticky(stickyFilter);
 		model.addAttribute("stickyRecords", stickyRecords);
+		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("userFilter", new UserFilter());
+		model.addAttribute("stickyNote", new StickyNote());
+		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
+		return "usersticky";
+	}
+	
+	@RequestMapping("/searchdb")
+	public String searchStickyDB(@ModelAttribute StickyNoteFilter stickyFilter, Model model){
+		Collection<StickyNote> stickyRecords = cacheService.searchStickyInDB(stickyFilter);
+		
+		System.out.println("Searched Data retrieved from DB :"+stickyRecords);
+		
+		model.addAttribute("stickyRecords", new ArrayList<Element>());
 		model.addAttribute("stickyFilter", new StickyNoteFilter());
 		model.addAttribute("userFilter", new UserFilter());
 		model.addAttribute("stickyNote", new StickyNote());
