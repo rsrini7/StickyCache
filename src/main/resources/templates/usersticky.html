@@ -139,6 +139,27 @@
 	
 	<div class="dividing-line"></div>
 	<br />
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span class="menu-breaking-line">|</span>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<form action="#" th:action="@{/usersticky/clearall}" method="post" style="display: inline">
+		<input type="submit" value="Clear All Data"/>
+	</form>
+	
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<span class="menu-breaking-line">|</span>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<form action="#" th:action="@{/usersticky/loadDataToDB/3}" method="post" style="display: inline">
+		<input type="submit" value="Load Data to DB"/>
+	</form>
+	
+	<div class="dividing-line"></div>
+	<br />
 
 	<!-- sticky panel -->
 	<th:block th:each="stickyRecord: ${stickyRecords}">

@@ -1,7 +1,6 @@
 package com.rsrini.stickycache.util;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Collection;
 
@@ -55,21 +54,8 @@ public class StickyNoteDBWriter implements CacheWriter {
 
 	public synchronized void write(final Element element) throws CacheException {
 
-		try {
-
 			StickyNote stickyNote = (StickyNote) element.getObjectValue();
-			PreparedStatement insert = null;
-			String insertstmt = " insert into STICKYCACHE(USER,TITLE,CONTENT) values (?,?,?)";
-			insert = DBUtil.getConnection().prepareStatement(insertstmt);
-			insert.setString(1, stickyNote.getUser());
-			insert.setString(2, stickyNote.getTitle());
-			insert.setString(3, stickyNote.getContent());
-			insert.execute();
-			insert.close();
-
-		} catch (Exception ex) {
-			logger.error(ex);
-		}
+			StickyCacheDataUtil.saveDataToDB(stickyNote);
 
 	}
 

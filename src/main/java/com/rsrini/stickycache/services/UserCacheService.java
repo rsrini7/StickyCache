@@ -12,14 +12,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.devskiller.jfairy.Fairy;
-import com.devskiller.jfairy.producer.person.Person;
-import com.devskiller.jfairy.producer.text.TextProducer;
 import com.rsrini.stickycache.domain.StickyNote;
 import com.rsrini.stickycache.domain.StickyNoteFilter;
 import com.rsrini.stickycache.domain.StickyNoteFilter.StickySearchType;
 import com.rsrini.stickycache.domain.UserFilter;
 import com.rsrini.stickycache.domain.UserStickyNote;
+import com.rsrini.stickycache.util.StickyCacheDataUtil;
 import com.rsrini.stickycache.util.StickyNoteCacheListenerFactory;
 import com.rsrini.stickycache.util.StickyNoteCacheLoader;
 import com.rsrini.stickycache.util.StickyNoteCollectionExtrator;
@@ -181,7 +179,12 @@ public class UserCacheService {
 				.maxWriteDelay(3).rateLimitPerSecond(10).notifyListenersOnException(true).writeCoalescing(true)
 				.writeBatching(true).writeBatchSize(2).retryAttempts(5).retryAttemptDelaySeconds(5).cacheWriterFactory(
 						new CacheWriterConfiguration.CacheWriterFactoryConfiguration().className(className)
-						.properties("url=jdbc:h2:mem:stickycache_db;DB_CLOSE_ON_EXIT=FALSE;id=sa;pw=").propertySeparator(";"));
+						.properties("url=jdbc:h2:mem:stickycache;id=sa;pw=sa").propertySeparator(";"));
+
+		//jdbc:h2:tcp://localhost:8000/~/stickycache
+		//jdbc:h2:tcp://localhost:8000/mem:stickycache_db;DB_CLOSE_DELAY=-1;
+		//jdbc:h2:tcp://localhost:9092/~/stickycache_db;DB_CLOSE_DELAY=-1
+		//DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
 	}
 	
 	@PostConstruct
@@ -378,22 +381,14 @@ public class UserCacheService {
 
 	public void generateAndLoadStickyNotesIntoCache(int count) {
 
-		StickyNote stickyNote = null;
-		Person person = Fairy.create().person();
+		List<StickyNote> stickyNoteDataList = StickyCacheDataUtil.generateStickyNoteData(count);
+		List<Element> stickyCacheElementList = new ArrayList<>();
 		
-		for(int i=0;i<count;i++) {
-			
-			if(i%2==0)
-				person = Fairy.create().person();
-			
-			TextProducer textProducer = Fairy.create().textProducer();
-			
-			stickyNote = new StickyNote(person.getFullName(),textProducer.word(),textProducer.sentence());
-			
-			stickyCache.put(new Element(stickyNote.getTitle(),stickyNote));
-			
-			addToUserCache(stickyNote, false);
+		for(StickyNote note : stickyNoteDataList) {
+			stickyCacheElementList.add(new Element(note.getTitle(),note));
+			addToUserCache(note, false);
 		}
+		stickyCache.putAll(stickyCacheElementList);
 		
 	}
 	
@@ -453,9 +448,22 @@ public class UserCacheService {
 				elements.add(element);
 			}
 		}
-		
-		
+
 		return elements;
 		
 	}
+
+	public void clearAllCache() {
+		stickyCache.removeAll();
+		searchCache.removeAll();
+		userStickyCache.removeAll();
+	}
+
+	public void generateAndLoadStickyNotesIntoDBOnly(int count) {
+		List<StickyNote> stickyNotes = StickyCacheDataUtil.generateStickyNoteData(count);
+		
+		StickyCacheDataUtil.saveDataToDB(stickyNotes);
+	}
+	
+	
 }

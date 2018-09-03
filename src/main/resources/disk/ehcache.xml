@@ -7,12 +7,23 @@
   <cache name="stickyCache"
 		maxEntriesLocalHeap="10000"
 		maxEntriesLocalDisk="1000"
-		eternal="true"
+		eternal="false"
 		timeToLiveSeconds="0"
  		timeToIdleSeconds="14400"
 		diskSpoolBufferSizeMB="20">
 		<searchable />
 		<persistence strategy="localRestartable" />
+	</cache>
+	
+	<cache name="searchCache"
+	         maxBytesLocalHeap="1M"
+	         maxMemoryOffHeap="10M" 
+	        eternal="true"
+			diskSpoolBufferSizeMB="20">
+	         <searchable>
+	         	<searchAttribute name="searchedData" expression="key" />
+	         </searchable>
+	         <persistence strategy="localRestartable" />
 	</cache>
 
 </ehcache>

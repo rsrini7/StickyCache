@@ -82,16 +82,16 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<span class="menu-breaking-line">|</span>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<a href="download/" th:href="@{download/}">
-		<input type="button" value="Download"/>
-	</a>
+	<form action="#" th:action="@{/sticky/download}" method="post" style="display: inline">
+		<input type="submit" value="Download"/>
+	</form>
 	
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<span class="menu-breaking-line">|</span>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<a href="searchdownload/" th:href="@{searchdownload/}">
-		<input type="button" value="Search Count Download"/>
-	</a>  
+	<form action="#" th:action="@{/sticky/searchdownload}" method="post" style="display: inline">
+		<input type="submit" value="Search Stat Download"/>
+	</form>
 
 	<div class="dividing-line"></div>
 	<br />

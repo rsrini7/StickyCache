@@ -33,6 +33,10 @@ public class CacheService {
 	@Value("${sticky.cache.runMode}")
 	private String runCacheMode;
 	
+	@Value("${sticky.cache.cacheMgr}")
+	private String cacheMgr;
+	
+	
 	@Autowired
 	private ApplicationContext applicationContext;
 	
@@ -40,13 +44,19 @@ public class CacheService {
 	
 	private Cache searchCache;
 	
+	
 	private CacheService(){
-		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/disk/ehcache.xml"));
-		CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/go/ehcache.xml"));
-		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/go/ehcacheuser.xml"));
-		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/max/ehcache.xml"));
+		CacheManager cm = null;
+		
+		if("go".equalsIgnoreCase(cacheMgr)) {
+			cm = CacheManager.newInstance(CacheService.class.getResource("/go/ehcache.xml"));
+		}else if("max".equalsIgnoreCase(cacheMgr)) {
+			cm = CacheManager.newInstance(CacheService.class.getResource("/max/ehcache.xml"));
+		}else {
+			cm = CacheManager.newInstance(CacheService.class.getResource("/disk/ehcache.xml"));
+		}
 		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/arc/ehcache.xml"));
-//		cm.addCache(CACHE_NAME);
+
 		stickyCache = cm.getCache(CACHE_NAME);
 		searchCache = cm.getCache(SEARCH_CACHE_NAME);
 	}

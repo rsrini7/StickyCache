@@ -73,6 +73,36 @@ public class UserStickyController {
 		return "usersticky";
 	}
 	
+	@RequestMapping("/clearall")
+	public String deletetStickyNote( Model model){
+		System.out.println("Executing the clear all cache");
+		
+		cacheService.clearAllCache();
+		
+		Collection<Element> stickyRecords  = cacheService.getCacheElements();
+		model.addAttribute("stickyRecords", stickyRecords);
+		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
+		model.addAttribute("stickyNote", new StickyNote());
+		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("userFilter", new UserFilter());
+		return "usersticky";
+	}
+	
+	@RequestMapping("/loadDataToDB/{count}")
+	public String loadDataToDB(@PathVariable("count") int count, Model model){
+		System.out.println("Executing the load with count : "+count);
+		
+		cacheService.generateAndLoadStickyNotesIntoDBOnly(count);
+		
+		Collection<Element> stickyRecords  = cacheService.getCacheElements();
+		model.addAttribute("stickyRecords", stickyRecords);
+		model.addAttribute("allSearchTypes", StickyNoteFilter.StickySearchType.values());
+		model.addAttribute("stickyNote", new StickyNote());
+		model.addAttribute("stickyFilter", new StickyNoteFilter());
+		model.addAttribute("userFilter", new UserFilter());
+		return "usersticky";
+	}
+	
 	@RequestMapping("/load/{count}")
 	public String loadStickyNote(@PathVariable("count") int count, Model model){
 		System.out.println("Executing the load with count : "+count);

@@ -36,28 +36,29 @@
   	</properties>
 
 	<dependencies>
+	
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-ee</artifactId>
 			<version>${ehcache-ee.version}</version>
-			<!-- scope>system</scope>
-			<systemPath>D:\MyWS\JavaWS\demo\libs\ehcache-ee-2.10.5.0.59.jar</systemPath-->
+			<scope>system</scope>
+			<systemPath>D:\MyWS\JavaWS\demo\libs\ehcache-ee-2.10.5.0.59.jar</systemPath>
 		</dependency>
 
 		<dependency>
       		<groupId>org.terracotta</groupId>
       		<artifactId>terracotta-toolkit-runtime-ee</artifactId>
       		<version>${toolkit.version}</version>
-      		<!-- scope>system</scope>
-      		<systemPath>D:\MyWS\JavaWS\demo\libs\terracotta-toolkit-runtime-ee-4.3.5.0.34.jar</systemPath-->
+      		<scope>system</scope>
+      		<systemPath>D:\MyWS\JavaWS\demo\libs\terracotta-toolkit-runtime-ee-4.3.5.0.34.jar</systemPath>
     	</dependency>
     	
     	<dependency>
       		<groupId>com.devskiller</groupId>
       		<artifactId>jfairy</artifactId>
       		<version>0.6.2</version>
-      		<!-- scope>system</scope>
-      		<systemPath>D:\MyWS\JavaWS\demo\libs\jfairy-0.6.1-SNAPSHOT.jar</systemPath-->
+      		<scope>system</scope>
+      		<systemPath>D:\MyWS\JavaWS\demo\libs\jfairy-0.6.2.jar</systemPath>
     	</dependency>
 
 		<dependency>
@@ -133,7 +134,7 @@
 		            </execution>
 		        </executions>
 		    </plugin>
-		    <plugin>
+		    <!-- plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
 			    <artifactId>maven-dependency-plugin</artifactId>
 			    <executions>
@@ -150,7 +151,7 @@
 			            </configuration>
 			        </execution>
 			    </executions>
-			</plugin>
+			</plugin-->
 		</plugins>
 	</build>
 
