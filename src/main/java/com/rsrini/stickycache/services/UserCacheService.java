@@ -89,8 +89,8 @@ public class UserCacheService {
 	    stickyCache = manager.getEhcache(CACHE_NAME);
 	    
 	    //replace with dbreadthrough - self populating cache
-	    replaceWithSelfPopulatingCache = replaceWithSelfPopulatingCache();
-	    manager.replaceCacheWithDecoratedCache(stickyCache, replaceWithSelfPopulatingCache); // only selfpopulating ref with refresh works
+	    replaceWithSelfPopulatingCache = getSelfPopulatingCache();
+	    //manager.replaceCacheWithDecoratedCache(stickyCache, replaceWithSelfPopulatingCache); // only selfpopulating ref with refresh works
 	    
 	    //loader registration
 	    stickyCache.registerCacheLoader(new StickyNoteCacheLoader());
@@ -102,14 +102,15 @@ public class UserCacheService {
 	    userStickyCache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter() {
 	    	@Override
 	    	public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-	    		System.out.println(Thread.currentThread().getName() + ":EventNotificationService user sticky cache put from adaptor " + element.getObjectKey().toString());
+	    		System.out.println(Thread.currentThread().getName() + ":UserCacheService user sticky cache put from adaptor " + element.getObjectKey().toString());
 	    	}
 	        
 	      });
 	}
 
-	private SelfPopulatingCache replaceWithSelfPopulatingCache() {
+	private SelfPopulatingCache getSelfPopulatingCache() {
 		SelfPopulatingCache selfPopulatingCache = new SelfPopulatingCache(stickyCache, new StickyNoteDBReadThrough());
+		selfPopulatingCache.setTimeoutMillis(100);
 		return selfPopulatingCache;
 	}
 
@@ -175,11 +176,14 @@ public class UserCacheService {
 	}
 	
 	private CacheWriterConfiguration cacheWriterConfig(String className) {
+		
 		return new CacheWriterConfiguration().writeMode(CacheWriterConfiguration.WriteMode.WRITE_BEHIND)
 				.maxWriteDelay(3).rateLimitPerSecond(10).notifyListenersOnException(true).writeCoalescing(true)
-				.writeBatching(true).writeBatchSize(2).retryAttempts(5).retryAttemptDelaySeconds(5).cacheWriterFactory(
+				.writeBatching(true).writeBatchSize(2).retryAttempts(5).retryAttemptDelaySeconds(5).writeBehindConcurrency(2)
+				.cacheWriterFactory(
 						new CacheWriterConfiguration.CacheWriterFactoryConfiguration().className(className)
-						.properties("url=jdbc:h2:mem:stickycache;id=sa;pw=sa").propertySeparator(";"));
+						.properties("url=jdbc:h2:mem:stickycache;id=sa;pw=sa").propertySeparator(";")
+						);
 
 		//jdbc:h2:tcp://localhost:8000/~/stickycache
 		//jdbc:h2:tcp://localhost:8000/mem:stickycache_db;DB_CLOSE_DELAY=-1;
@@ -324,13 +328,16 @@ public class UserCacheService {
 		
 		switch (searchType){
 			case SEARCH_BY_KEY:{
+				
+/*				Element element = replaceWithSelfPopulatingCache.get(searchActualValue); //not returning from db
+				System.out.println("self populating cache : "+element);
+				if(element != null && element.getObjectValue() != null) {*/
+					replaceWithSelfPopulatingCache.refresh(searchActualValue);
+				//}
+				
 				//filteredStickies = stickyCache.createQuery().addCriteria(Query.KEY.ilike(searchValue)).includeKeys().includeValues().execute();
 				Query stickyKeyQuery = queryManager.createQuery("select * from stickyCache where title like '%"+searchActualValue+"%'").includeKeys().includeValues();
 				filteredStickies = stickyKeyQuery.end().execute();
-				
-				//temp test read from db
-				//Element element = replaceWithSelfPopulatingCache.refresh(searchActualValue); // retrived from db. but after refresh filteredStickies - value becoming null
-				//Element element = replaceWithSelfPopulatingCache.get(searchActualValue); //not returning from db
 				
 				searchStickies = searchResults(queryManager,searchActualValue);
 				break;

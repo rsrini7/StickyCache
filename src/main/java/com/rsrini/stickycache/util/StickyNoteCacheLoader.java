@@ -35,16 +35,16 @@ public class StickyNoteCacheLoader  implements CacheLoader {
 		StickyNote retStickyNote = null;
 		Collection<StickyNote> retieveDataFromDB = Collections.emptyList();
 			
-			retieveDataFromDB = StickyCacheDataUtil.retieveDataFromDB(new StickyNoteFilter(key.toString()));
+		retieveDataFromDB = StickyCacheDataUtil.retieveDataFromDB(new StickyNoteFilter(key.toString()));
 			
-			System.out.println("retrieved from db: "+retieveDataFromDB);
+		System.out.println("retrieved from db: "+retieveDataFromDB);
 			
-			if(retieveDataFromDB != null && !retieveDataFromDB.isEmpty()) {
+		if(retieveDataFromDB != null && !retieveDataFromDB.isEmpty()) {
 				for(StickyNote stickyNote : retieveDataFromDB) {
 					retStickyNote = stickyNote;
 					break;
 				}
-			}
+		}
 			
 		return retStickyNote;
 	}
