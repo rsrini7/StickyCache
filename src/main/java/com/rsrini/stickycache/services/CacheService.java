@@ -36,7 +36,6 @@ public class CacheService {
 	@Value("${sticky.cache.cacheMgr}")
 	private String cacheMgr;
 	
-	
 	@Autowired
 	private ApplicationContext applicationContext;
 	
@@ -46,19 +45,7 @@ public class CacheService {
 	
 	
 	private CacheService(){
-		CacheManager cm = null;
-		
-		if("go".equalsIgnoreCase(cacheMgr)) {
-			cm = CacheManager.newInstance(CacheService.class.getResource("/go/ehcache.xml"));
-		}else if("max".equalsIgnoreCase(cacheMgr)) {
-			cm = CacheManager.newInstance(CacheService.class.getResource("/max/ehcache.xml"));
-		}else {
-			cm = CacheManager.newInstance(CacheService.class.getResource("/disk/ehcache.xml"));
-		}
-		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/arc/ehcache.xml"));
-
-		stickyCache = cm.getCache(CACHE_NAME);
-		searchCache = cm.getCache(SEARCH_CACHE_NAME);
+	
 	}
 	
 	@PostConstruct
@@ -66,6 +53,21 @@ public class CacheService {
 		System.out.println("Initialize Cache method invoked");
 		System.out.println("context property source bean injection" + applicationContext);
 		System.out.println("cache mode"+runCacheMode);
+		
+		CacheManager cm = null;
+			
+		if("go".equalsIgnoreCase(cacheMgr)) {
+				cm = CacheManager.newInstance(CacheService.class.getResource("/go/ehcache.xml"));
+		}else if("max".equalsIgnoreCase(cacheMgr)) {
+				cm = CacheManager.newInstance(CacheService.class.getResource("/max/ehcache.xml"));
+		}else {
+				cm = CacheManager.newInstance(CacheService.class.getResource("/disk/ehcache.xml"));
+		}
+		//CacheManager cm = CacheManager.newInstance(CacheService.class.getResource("/arc/ehcache.xml"));
+	
+		stickyCache = cm.getCache(CACHE_NAME);
+		searchCache = cm.getCache(SEARCH_CACHE_NAME);
+		
 		if (runCacheMode.equals("CleanRun")){
 			stickyCache.removeAll();
 		}

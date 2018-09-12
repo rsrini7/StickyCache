@@ -48,7 +48,7 @@
 		<enabled>false</enabled>       
 	</garbage-collection>
 	
-   	<restartable enabled="false"/>
+   	<restartable enabled="true"/>
   
   </servers>
   

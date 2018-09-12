@@ -1,6 +1,6 @@
 edit start-tc-server.bat and add after %CLASSPATH% -Dcom.tc.productkey.path=I:/MyWS/javaws/ehcache/StickyCache/terracotta-license.key
 
-start-tc-server.bat -n server1 -f I:/MyWS/javaws/StickyCache/src/main/resources/max/tc-config-ha.xml
+start-tc-server.bat -n server1 -f D:/MyWS/javaws/StickyCache/src/main/resources/max/tc-config-ha.xml
 
 start-tc-server.bat -n server2 -f D:/MyWS/javaws/StickyCache/src/main/resources/max/tc-config-ha.xml
 
