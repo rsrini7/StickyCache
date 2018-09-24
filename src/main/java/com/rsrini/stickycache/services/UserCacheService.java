@@ -28,6 +28,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
@@ -37,6 +38,7 @@ import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
+import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Result;
@@ -50,6 +52,8 @@ public class UserCacheService {
 	private static final String CACHE_NAME = "stickyCache";
 	private static final String USER_CACHE_NAME = "userStickyCache";
 	private static final String SEARCH_CACHE_NAME = "searchCache";
+	
+	private static final int expireThreadSeconds = 60*30; //30 mins (60 * 30)
 	
 	private final static String CACHE_POLICY = "LRU"; //LFU
 	
@@ -98,6 +102,12 @@ public class UserCacheService {
 	    userStickyCache = manager.getEhcache(USER_CACHE_NAME);
 	    
 	    //userStickyCache.setNodeBulkLoadEnabled(true);
+	    
+	    if(expireThreadSeconds > 0) {
+	    	EhCacheExtension ehCacheExtension = new EhCacheExtension(USER_CACHE_NAME,expireThreadSeconds);
+	    	ehCacheExtension.init();
+	    	userStickyCache.registerCacheExtension(ehCacheExtension);
+		}
 	    
 	    userStickyCache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter() {
 	    	@Override
@@ -478,5 +488,67 @@ public class UserCacheService {
 		return StickyCacheDataUtil.retieveDataFromDB(stickyFilter);
 	}
 	
+
+	public static class EhCacheExtension implements CacheExtension {
+		private String cacheName;
+		private EvictionThread evictThread;
+		private Thread thread;
+		private int seconds;
+
+		public EhCacheExtension(final String cacheName,final int seconds) {
+			this.seconds = seconds;
+			this.cacheName = cacheName;
+		}
+
+		public CacheExtension clone(final net.sf.ehcache.Ehcache arg0) throws CloneNotSupportedException {
+			return new EhCacheExtension(arg0.getName(),seconds);
+		}
+
+		public void dispose() throws CacheException {
+			evictThread.kill();
+			thread.interrupt();
+			evictThread.kill();
+		}
+
+		public Status getStatus() {
+			return Status.STATUS_ALIVE;
+		}
+
+		public void init() {
+			evictThread = new EvictionThread(cacheName,seconds);
+			thread = new Thread(evictThread);
+			thread.setName(cacheName+"-expire");
+			thread.start();
+		}
+
+	}
+
+	public static class EvictionThread implements Runnable {
+		private String cacheName;
+		private int seconds;
+		private boolean run = true;
+
+		public EvictionThread(final String cacheName,final int seconds) {
+			this.cacheName = cacheName;
+			this.seconds = seconds;
+		}
+
+		public void kill() {
+			run = false;
+		}
+
+		public void run() {
+			while(run) {
+				Ehcache cache = CacheManager.getInstance().getCache(cacheName);
+				if(cache != null) {
+					cache.evictExpiredElements();
+				}
+				try {
+					Thread.sleep(1000*seconds);
+				} catch(Exception e) {
+				}
+			}
+		}
+	}
 	
 }
