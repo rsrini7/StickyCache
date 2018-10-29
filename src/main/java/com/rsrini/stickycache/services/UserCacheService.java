@@ -52,8 +52,10 @@ public class UserCacheService {
 	private static final String CACHE_NAME = "stickyCache";
 	private static final String USER_CACHE_NAME = "userStickyCache";
 	private static final String SEARCH_CACHE_NAME = "searchCache";
-	
+
+	 //"expired" (time of creation + time to live < now)
 	private static final int expireThreadSeconds = 60*30; //30 mins (60 * 30)
+
 	
 	private final static String CACHE_POLICY = "LRU"; //LFU
 	
